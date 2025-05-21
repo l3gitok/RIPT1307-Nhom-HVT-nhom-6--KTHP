@@ -1,0 +1,34 @@
+const mongoose = require('mongoose');
+
+const profileSchema = new mongoose.Schema({
+  username: { type: String },
+  avatar_url: { type: String },
+  cover_url: { type: String }
+}, { _id: false });
+
+const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    match: /^\S+@\S+\.\S+$/ // Kiểm tra email hợp lệ
+  },
+  hashed_password: { type: String, required: function() { return !this.google_id; } }, // Chỉ yêu cầu mật khẩu nếu không có google_id
+  google_id: { type: String },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
+    required: true
+  },
+  profile: profileSchema,
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  created_at: { type: Date, default: Date.now },
+  otp: { type: String }, // OTP cho xác nhận tài khoản
+  otp_expiration: { type: Date }, // Thời gian hết hạn của OTP
+  is_verified: { type: Boolean, default: false }, // Trạng thái xác nhận email
+  refresh_token: { type: String }
+});
+
+module.exports = mongoose.model('User', userSchema);
