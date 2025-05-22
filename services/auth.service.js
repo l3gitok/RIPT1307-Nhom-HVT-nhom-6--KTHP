@@ -1,16 +1,38 @@
 const User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
-const generateTokens = require('../utils/token.util');
+const {generateTokens}= require('../utils/token.util');
 const sendEmail = require('../utils/email.util');
 const jwt = require('jsonwebtoken');
 
 
+exports.refreshAccessToken = async (refreshToken) => {
+  if (!refreshToken) {
+    const err = new Error('Refresh Token is required');
+    err.status = 401;
+    throw err;
+  }
 
-exports.generateTokens = (userId, role) => {
-  const accessToken = jwt.sign({ id: userId, role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-  const refreshToken = jwt.sign({ id: userId, role }, process.env.JWT_SECRET, { expiresIn: '30d' });
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+  } catch {
+    const err = new Error('Invalid Refresh Token');
+    err.status = 403;
+    throw err;
+  }
 
-  return { accessToken, refreshToken };
+  const user = await User.findById(decoded.id);
+  if (!user || user.refresh_token !== refreshToken) {
+    const err = new Error('Invalid Refresh Token');
+    err.status = 401;
+    throw err;
+  }
+
+  const { accessToken, refreshToken: newRefreshToken } =generateTokens(user._id, user.role);
+  user.refresh_token = newRefreshToken;
+  await user.save();
+
+  return { accessToken, refreshToken: newRefreshToken };
 };
 
 exports.register = async ({ email, password, profile }) => {
@@ -23,14 +45,7 @@ exports.register = async ({ email, password, profile }) => {
   if (password.length < 6) {
     throw new Error('Mật khẩu phải có ít nhất 6 ký tự');
   }
-  let hashed_password = null;
-  if (password) {
-    if(!passwword || password.trim() === '') {
-      throw new Error('Password is required');
-    }
-    hashed_password = await bcrypt.hash(password, 10);
-  }
-
+  const hashed_password = await bcrypt.hash(password, 10);
 
     
   const user = await User.create({
@@ -56,7 +71,7 @@ exports.register = async ({ email, password, profile }) => {
   user.otp_expiration = Date.now() + 15 * 60 * 1000; // OTP hết hạn sau 15 phút
   await user.save();
 
-  const { accessToken, refreshToken } = this.generateTokens(user._id, user.role);
+  const { accessToken, refreshToken } = generateTokens(user._id, user.role);
 
   user.refresh_token = refreshToken;
   await user.save();
@@ -65,25 +80,43 @@ exports.register = async ({ email, password, profile }) => {
 };
 
 exports.login = async ({ email, password }) => {
-  // Kiểm tra người dùng có tồn tại không
   const user = await User.findOne({ email });
   if (!user) throw new Error('Email không tồn tại');
-
-  // Kiểm tra mật khẩu
   const isMatch = await bcrypt.compare(password, user.hashed_password);
   if (!isMatch) throw new Error('Mật khẩu không chính xác');
 
-  // Tạo Access Token với thời gian sống (ví dụ 1 giờ)
-  const accessToken = generateTokens(user._id, user.role, '1h'); // token hết hạn sau 1 giờ
+  const { accessToken, refreshToken } =generateTokens(user._id, user.role);
+  user.refresh_token = refreshToken;
+  await user.save();
 
-  // Tạo Refresh Token với thời gian sống dài hơn (ví dụ 30 ngày)
-  const refreshToken = generateTokens(user._id, user.role, '30d'); // token hết hạn sau 30 ngày
-
-  // Trả về cả Access Token và Refresh Token
   return { accessToken, refreshToken, user };
 };
 
+
 exports.logout = async (user) => {
-  // Option: Ghi log thời điểm logout vào DB nếu muốn theo dõi
-  return { message: 'Logout success (stateless)' };
+  user.refresh_token = null;
+  await user.save();
+  return { message: 'Logout success' };
+};
+exports.forgotPassword = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error('Email không tồn tại');
+  const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+  const resetLink = `http://your-frontend-url.com/reset-password?token=${resetToken}`;
+  await sendEmail(email, 'Đặt lại mật khẩu', '', `
+    <p>Bạn vừa yêu cầu đặt lại mật khẩu.</p>
+    <a href="${resetLink}">Nhấn vào đây để đặt lại mật khẩu</a>
+  `);
+};
+exports.resetPassword = async (token, newPassword) => {
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
+    throw new Error('Token không hợp lệ hoặc đã hết hạn');
+  }
+  const user = await User.findById(decoded.id);
+  if (!user) throw new Error('User không tồn tại');
+  user.hashed_password = await bcrypt.hash(newPassword, 10);
+  await user.save();
 };

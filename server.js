@@ -35,7 +35,11 @@ connectDB();
 
 // Init app
 const app = express();
-
+app.use(cors({
+  origin: '*', // Cho phép tất cả các nguồn gốc
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Các phương thức HTTP được phép
+  allowedHeaders: ['Content-Type', 'Authorization'] // Các tiêu đề được phép
+}));
 app.use(session({ secret: 'gamehub', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -48,11 +52,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use(cors({
-  origin: '*', // Cho phép tất cả các nguồn gốc
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Các phương thức HTTP được phép
-  allowedHeaders: ['Content-Type', 'Authorization'] // Các tiêu đề được phép
-}));
+
 
 const server = http.createServer(app);
 const io = new Server(server, {

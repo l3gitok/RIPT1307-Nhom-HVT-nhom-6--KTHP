@@ -19,31 +19,14 @@ exports.googleLoginCallback = async (req, res, next) => {
 };
 
 exports.refreshAccessToken = async (req, res, next) => {
-  const { refreshToken } = req.body;
-  if (!refreshToken) {
-    return res.status(401).json({ message: 'Refresh Token is required' });
-  }
-
   try {
-    // Verify Refresh Token
-    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
-
-    // Kiểm tra Refresh Token có hợp lệ không
-    const user = await User.findById(decoded.id);
-    if (!user || user.refresh_token !== refreshToken) {
-      return res.status(401).json({ message: 'Invalid Refresh Token' });
-    }
-
-    // Tạo lại Access Token
-    const { accessToken, refreshToken: newRefreshToken } = authService.generateTokens(user._id, user.role);
-
-    // Trả lại mới cả 2 token
-    res.json({ accessToken, refreshToken: newRefreshToken });
+    const result = await authService.refreshAccessToken(req.body.refreshToken);
+    res.json(result);
   } catch (err) {
-    return res.status(403).json({ message: 'Invalid Refresh Token' });
+    // Có thể trả về mã lỗi phù hợp ở đây
+    next(err);
   }
 };
-
 
 exports.register = async (req, res, next) => {
   try {
@@ -64,21 +47,18 @@ exports.login = async (req, res, next) => {
 };
 exports.logout = async (req, res, next) => {
   try {
-    // Xoá refresh token khỏi user khi logout
-    req.user.refresh_token = null;
-    await req.user.save();
-
+    await authService.logout(req.user);
     res.status(204).send();  // 204 No Content
   } catch (err) {
     next(err);
   }
 };
 exports.verifyEmail = async (req, res, next) => {
-  const { otp, token } = req.query;
+  const { otp, token, email } = req.query;
 
   // Kiểm tra OTP
   if (otp) {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email });
 
     if (!user || user.otp !== otp) {
       return res.status(400).json({ message: 'OTP không hợp lệ' });
@@ -91,6 +71,7 @@ exports.verifyEmail = async (req, res, next) => {
     // Xác nhận thành công, cập nhật trạng thái user
     user.is_verified = true;
     user.otp = undefined;  // Xoá OTP sau khi xác nhận
+    user.otp_expiration = undefined;  // Xoá thời gian hết hạn OTP
     await user.save();
 
     return res.status(200).json({ message: 'Xác nhận tài khoản qua OTP thành công' });
@@ -120,4 +101,20 @@ exports.verifyEmail = async (req, res, next) => {
   }
 
   res.status(400).json({ message: 'Vui lòng cung cấp OTP hoặc token xác nhận' });
+};
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    await authService.forgotPassword(req.body.email);
+    res.json({ message: 'Đã gửi email đặt lại mật khẩu' });
+  } catch (err) {
+    next(err);
+  }
+};
+exports.resetPassword = async (req, res, next) => {
+  try {
+    await authService.resetPassword(req.body.token, req.body.newPassword);
+    res.json({ message: 'Đặt lại mật khẩu thành công' });
+  } catch (err) {
+    next(err);
+  }
 };
