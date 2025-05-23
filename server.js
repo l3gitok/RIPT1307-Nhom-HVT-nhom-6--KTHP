@@ -10,6 +10,7 @@ const commentRoutes = require('./routes/comment.routes');
 const reportRoutes = require('./routes/report.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const uploadRoutes = require('./routes/upload.routes');
+const likeRoutes = require('./routes/like.routes');
 const http = require('http');
 const { Server } = require('socket.io');
 const setupSocket = require('./config/socket');
@@ -52,6 +53,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api', likeRoutes);
 
 
 const server = http.createServer(app);

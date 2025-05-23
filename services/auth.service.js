@@ -65,7 +65,6 @@ exports.register = async ({ email, password, profile }) => {
     <p>Hoặc bạn có thể nhấp vào link dưới đây để xác nhận:</p>
     <a href="${verifyLink}">Xác nhận tài khoản</a>
   `);
-
   // Lưu OTP vào DB (hoặc trong cache) để sau này xác nhận
   user.otp = otp;
   user.otp_expiration = Date.now() + 15 * 60 * 1000; // OTP hết hạn sau 15 phút
@@ -119,4 +118,43 @@ exports.resetPassword = async (token, newPassword) => {
   if (!user) throw new Error('User không tồn tại');
   user.hashed_password = await bcrypt.hash(newPassword, 10);
   await user.save();
+};
+exports.verifyEmail = async ({ otp, token, email }) => {
+  const User = require('../models/user.model');
+  const jwt = require('jsonwebtoken');
+
+  if (otp) {
+    const user = await User.findOne({ email });
+    if (!user || user.otp !== otp) {
+      return { status: 400, message: 'OTP không hợp lệ' };
+    }
+    if (user.otp_expiration < Date.now()) {
+      return { status: 400, message: 'OTP đã hết hạn' };
+    }
+    user.is_verified = true;
+    user.otp = undefined;
+    user.otp_expiration = undefined;
+    await user.save();
+    return { status: 200, message: 'Xác nhận tài khoản qua OTP thành công' };
+  }
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return { status: 400, message: 'User không tồn tại' };
+      }
+      if (user.is_verified) {
+        return { status: 400, message: 'Tài khoản đã được xác nhận' };
+      }
+      user.is_verified = true;
+      await user.save();
+      return { status: 200, message: 'Xác nhận tài khoản qua link thành công' };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  return { status: 400, message: 'Vui lòng cung cấp OTP hoặc token xác nhận' };
 };

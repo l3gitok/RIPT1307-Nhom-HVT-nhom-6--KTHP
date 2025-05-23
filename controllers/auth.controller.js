@@ -54,53 +54,12 @@ exports.logout = async (req, res, next) => {
   }
 };
 exports.verifyEmail = async (req, res, next) => {
-  const { otp, token, email } = req.query;
-
-  // Kiểm tra OTP
-  if (otp) {
-    const user = await User.findOne({ email });
-
-    if (!user || user.otp !== otp) {
-      return res.status(400).json({ message: 'OTP không hợp lệ' });
-    }
-
-    if (user.otp_expiration < Date.now()) {
-      return res.status(400).json({ message: 'OTP đã hết hạn' });
-    }
-
-    // Xác nhận thành công, cập nhật trạng thái user
-    user.is_verified = true;
-    user.otp = undefined;  // Xoá OTP sau khi xác nhận
-    user.otp_expiration = undefined;  // Xoá thời gian hết hạn OTP
-    await user.save();
-
-    return res.status(200).json({ message: 'Xác nhận tài khoản qua OTP thành công' });
+  try {
+    const result = await authService.verifyEmail(req.query);
+    res.status(result.status).json({ message: result.message });
+  } catch (err) {
+    next(err);
   }
-
-  // Kiểm tra Link Xác Nhận
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id);
-
-      if (!user) {
-        return res.status(400).json({ message: 'User không tồn tại' });
-      }
-
-      if (user.is_verified) {
-        return res.status(400).json({ message: 'Tài khoản đã được xác nhận' });
-      }
-
-      user.is_verified = true;
-      await user.save();
-
-      return res.status(200).json({ message: 'Xác nhận tài khoản qua link thành công' });
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  res.status(400).json({ message: 'Vui lòng cung cấp OTP hoặc token xác nhận' });
 };
 exports.forgotPassword = async (req, res, next) => {
   try {
