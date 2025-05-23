@@ -101,7 +101,7 @@ exports.forgotPassword = async (email) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error('Email không tồn tại');
   const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-  const resetLink = `http://http://localhost:8001/reset-password?token=${resetToken}`;
+  const resetLink = `http://localhost:8000/user/reset-password?token=${resetToken}`;
   await sendEmail(email, 'Đặt lại mật khẩu', '', `
     <p>Bạn vừa yêu cầu đặt lại mật khẩu.</p>
     <a href="${resetLink}">Nhấn vào đây để đặt lại mật khẩu</a>
