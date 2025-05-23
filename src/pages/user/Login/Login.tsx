@@ -92,6 +92,12 @@ const Login: React.FC = () => {
 						</Button>
 					</Form>
 
+					<div style={{ textAlign: 'center', marginTop: '10px' }}>
+						<Button type="link" onClick={() => history.push('/user/forgot-password')}>
+							Quên mật khẩu?
+						</Button>
+					</div>
+
 					<div style={{ textAlign: 'center', marginTop: '20px' }}>
 						<Button type='link' onClick={() => history.push('/user/register')}>
 							Chưa có tài khoản? Đăng ký

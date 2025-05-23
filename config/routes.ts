@@ -23,6 +23,18 @@ export default [
 				path: '/user/verify-email',
 				component: './user/Login/VerifyEmail',
 			},
+			{
+				name: 'forgot-password',
+				layout: false,
+  				path: '/user/forgot-password',
+  				component: './user/Login/ForgotPassWord',
+			},	
+			{
+				name: 'reset-password',
+				layout: false,
+				path: '/user/reset-password',
+				component: './user/Login/ResetPassword',
+			},
 		],
 	},
 
