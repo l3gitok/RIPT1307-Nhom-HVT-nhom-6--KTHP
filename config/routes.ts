@@ -1,4 +1,4 @@
-﻿import component from "@/locales/en-US/component";
+﻿import component from '@/locales/en-US/component';
 
 export default [
 	{
@@ -12,8 +12,16 @@ export default [
 				component: './user/Login',
 			},
 			{
-				path: '/user',
-				redirect: '/user/login',
+				path: '/user/register',
+				layout: false,
+				name: 'register',
+				component: './user/Login/Register',
+			},
+			{
+				name: 'verify-email',
+				layout: false,
+				path: '/user/verify-email',
+				component: './user/Login/VerifyEmail',
 			},
 		],
 	},
@@ -37,18 +45,6 @@ export default [
 		name: 'RandomUser',
 		component: './RandomUser',
 		icon: 'ArrowsAltOutlined',
-	},
-	{
-		path:'/QuanTri',
-		name: 'Quản trị',
-		component: './QuanTri',
-		icon: 'SettingOutlined',
-	},
-	{
-		path: '/TrangChu2',
-		name: 'Trang chủ',
-		icon: 'HomeOutlined',
-		component: './TrangChu2',
 	},
 
 	// DANH MUC HE THONG

@@ -44,15 +44,7 @@ export const TabViewPage = (props: {
 			<Affix offsetTop={60}>
 				<Tabs activeKey={tabActive} onChange={(key) => onChangeTab(key)} style={{ background: 'white' }}>
 					{menu.map((item) => (
-						<Tabs.TabPane
-							tab={
-								<span>
-									{item.icon}
-									{item.title}
-								</span>
-							}
-							key={item.menuKey}
-						/>
+						<Tabs.TabPane tab={<span>{item.title}</span>} key={item.menuKey} />
 					))}
 				</Tabs>
 			</Affix>
