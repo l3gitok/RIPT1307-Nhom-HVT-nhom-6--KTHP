@@ -77,3 +77,42 @@ exports.resetPassword = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getUserData = async (req, res, next) => {
+  try {
+    const userId = req.params.id || req.user.id; // Lấy từ params hoặc user hiện tại
+    const user = await authService.getUserData(userId);
+    res.json({ success: true, user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await authService.getUserData(req.user.id);
+    res.json({ success: true, user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const { page, limit, role, is_verified } = req.query;
+    const result = await authService.getAllUsers({ page, limit, role, is_verified });
+    res.json({ success: true, ...result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { username, avatar_url, cover_url } = req.body;
+    const user = await authService.updateUserProfile(req.user.id, { username, avatar_url, cover_url });
+    res.json({ success: true, user, message: 'Cập nhật profile thành công' });
+  } catch (error) {
+    next(error);
+  }
+};

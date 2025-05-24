@@ -158,3 +158,78 @@ exports.verifyEmail = async ({ otp, token, email }) => {
 
   return { status: 400, message: 'Vui lòng cung cấp OTP hoặc token xác nhận' };
 };
+
+exports.getUserData = async (userId) => {
+  const user = await User.findById(userId).select('-hashed_password -refresh_token -otp -otp_expiration');
+  if (!user) {
+    const err = new Error('User không tồn tại');
+    err.status = 404;
+    throw err;
+  }
+  return user;
+};
+
+exports.getAllUsers = async (query = {}) => {
+  const { page = 1, limit = 10, role, is_verified } = query;
+  const filter = {};
+  
+  if (role) filter.role = role;
+  if (is_verified !== undefined) filter.is_verified = is_verified;
+
+  const users = await User.find(filter)
+    .select('-hashed_password -refresh_token -otp -otp_expiration')
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .sort({ created_at: -1 });
+
+  const total = await User.countDocuments(filter);
+
+  return {
+    users,
+    totalPages: Math.ceil(total / limit),
+    currentPage: page,
+    total
+  };
+};
+
+exports.updateUserProfile = async (userId, profileData) => {
+  const { username, avatar_url, cover_url } = profileData;
+  
+  const user = await User.findById(userId);
+  if (!user) {
+    const err = new Error('User không tồn tại');
+    err.status = 404;
+    throw err;
+  }
+
+  if (username) {
+    // Kiểm tra username đã tồn tại chưa
+    const existingUser = await User.findOne({ 
+      'profile.username': username, 
+      _id: { $ne: userId } 
+    });
+    if (existingUser) {
+      const err = new Error('Username đã được sử dụng');
+      err.status = 400;
+      throw err;
+    }
+  }
+
+  // Cập nhật profile
+  if (!user.profile) user.profile = {};
+  if (username) user.profile.username = username;
+  if (avatar_url) user.profile.avatar_url = avatar_url;
+  if (cover_url) user.profile.cover_url = cover_url;
+
+  await user.save();
+  
+  return user.toObject({ 
+    transform: (doc, ret) => {
+      delete ret.hashed_password;
+      delete ret.refresh_token;
+      delete ret.otp;
+      delete ret.otp_expiration;
+      return ret;
+    }
+  });
+};
