@@ -32,4 +32,21 @@ router.post('/logout', authController.logout);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
 
+// Lấy thông tin user hiện tại (cần đăng nhập)
+router.get('/me', passport.authenticate('jwt', { session: false }), authController.getCurrentUser);
+
+// Lấy thông tin user theo ID (cần đăng nhập)
+router.get('/user/:id', passport.authenticate('jwt', { session: false }), authController.getUserData);
+
+// Lấy danh sách tất cả users (chỉ admin)
+router.get('/users', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Chỉ admin mới có quyền truy cập' });
+  }
+  next();
+}, authController.getAllUsers);
+
+// Cập nhật profile user hiện tại
+router.put('/profile', passport.authenticate('jwt', { session: false }), authController.updateProfile);
+
 module.exports = router;
