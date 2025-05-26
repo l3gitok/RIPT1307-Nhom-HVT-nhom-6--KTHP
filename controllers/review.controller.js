@@ -1,52 +1,165 @@
 const reviewService = require('../services/review.service');
 
 
-exports.createReview = async (req, res, next) => {
+exports.getAllReviews = async (req, res, next) => {
   try {
-    const review = await reviewService.createReview(req.body, req.user.id);
-    res.status(201).json(review);
-  } catch (err) {
-    next(err);
+    const result = await reviewService.getAllReviews(req.query);
+    res.json({ 
+      success: true, 
+      ...result 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getReviewById = async (req, res, next) => {
+  try {
+    const review = await reviewService.getReviewById(req.params.id);
+    res.json({ 
+      success: true, 
+      review 
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
 exports.getReviewsByGame = async (req, res, next) => {
   try {
-    const reviews = await reviewService.getReviewsByGame(req.params.gameId);
-    res.json(reviews);
-  } catch (err) {
-    next(err);
+    const result = await reviewService.getReviewsByGame(req.params.gameId, req.query);
+    res.json({ 
+      success: true, 
+      ...result 
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
-exports.getPendingReviews = async (req, res, next) => {
+exports.getMyReviews = async (req, res, next) => {
   try {
-    const pending = await reviewService.getPendingReviews();
-    res.json(pending);
-  } catch (err) {
-    next(err);
+    const result = await reviewService.getReviewsByUser(req.user.id, req.query);
+    res.json({ 
+      success: true, 
+      ...result 
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
-exports.approveOrReject = async (req, res, next) => {
+exports.getUserReviews = async (req, res, next) => {
   try {
-    
+    const result = await reviewService.getReviewsByUser(req.params.userId, req.query);
+    res.json({ 
+      success: true, 
+      ...result 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createReview = async (req, res, next) => {
+  try {
+    const review = await reviewService.createReview(req.body, req.user.id);
+    res.status(201).json({ 
+      success: true, 
+      review,
+      message: 'Tạo review thành công! Đang chờ duyệt.' 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateReview = async (req, res, next) => {
+  try {
+    const review = await reviewService.updateReview(
+      req.params.id, 
+      req.body, 
+      req.user.id, 
+      req.user.role
+    );
+    res.json({ 
+      success: true, 
+      review,
+      message: 'Cập nhật review thành công!' 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteReview = async (req, res, next) => {
+  try {
+    const result = await reviewService.deleteReview(
+      req.params.id, 
+      req.user.id, 
+      req.user.role
+    );
+    res.json({ 
+      success: true, 
+      ...result 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateReviewStatus = async (req, res, next) => {
+  try {
     const { status } = req.body;
-    const updated = await reviewService.updateReviewStatus(req.params.reviewId, status);
-    await notificationService.createNotification({
-      user_id: updated.author_id,
-      type: 'review_approved',
-      payload: { reviewId: updated._id }
+    const review = await reviewService.updateReviewStatus(
+      req.params.id, 
+      status, 
+      req.user.id
+    );
+    res.json({ 
+      success: true, 
+      review,
+      message: `Review đã được ${status === 'approved' ? 'duyệt' : 'từ chối'}!` 
     });
+  } catch (error) {
+    next(error);
+  }
+};
 
-    const io = req.app.get('io');
-    io.to(updated.author_id.toString()).emit('notification', {
-      type: 'review_approved',
-      payload: { reviewId: updated._id }
+exports.likeReview = async (req, res, next) => {
+  try {
+    const result = await reviewService.likeReview(req.params.id, req.user.id);
+    res.json({ 
+      success: true, 
+      ...result,
+      message: result.liked ? 'Đã like review!' : 'Đã bỏ like review!' 
     });
+  } catch (error) {
+    next(error);
+  }
+};
 
-    res.json(updated);
-  } catch (err) {
-    next(err);
+exports.addReply = async (req, res, next) => {
+  try {
+    const reply = await reviewService.addReply(req.params.id, req.body, req.user.id);
+    res.status(201).json({ 
+      success: true, 
+      reply,
+      message: 'Đã thêm phản hồi!' 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getReviewStats = async (req, res, next) => {
+  try {
+    const stats = await reviewService.getReviewStats();
+    res.json({ 
+      success: true, 
+      ...stats 
+    });
+  } catch (error) {
+    next(error);
   }
 };

@@ -28,7 +28,32 @@ const userSchema = new mongoose.Schema({
   otp: { type: String }, // OTP cho xác nhận tài khoản
   otp_expiration: { type: Date }, // Thời gian hết hạn của OTP
   is_verified: { type: Boolean, default: false }, // Trạng thái xác nhận email
-  refresh_token: { type: String }
+  refresh_token: { type: String },
+  status: {
+    type: String,
+    enum: ['active', 'banned', 'deleted'],
+    default: 'active'
+  },
+  ban_info: {
+    reason: {
+      type: String,
+      enum: ['spam', 'inappropriate', 'harassment', 'fake_account', 'other']
+    },
+    description: String,
+    banned_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    banned_at: Date,
+    ban_expires_at: Date
+  },
+  report_count: {
+    type: Number,
+    default: 0
+  },
+  last_reported_at: Date
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('User', userSchema);
