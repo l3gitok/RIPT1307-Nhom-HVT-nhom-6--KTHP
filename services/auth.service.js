@@ -169,31 +169,48 @@ exports.getUserData = async (userId) => {
   return user;
 };
 
-exports.getAllUsers = async (query = {}) => {
-  const { page = 1, limit = 10, role, is_verified } = query;
-  const filter = {};
+// Lấy user theo ID (full info cho chính user đó)
+exports.getUserById = async (userId) => {
+  const user = await User.findById(userId)
+    .select('-hashed_password -refresh_token -otp -otp_expiration')
+    .lean();
   
-  if (role) filter.role = role;
-  if (is_verified !== undefined) filter.is_verified = is_verified;
+  return user;
+};
 
-  const users = await User.find(filter)
+// Lấy public profile của user (cho người khác xem)
+exports.getPublicUserProfile = async (userId) => {
+  const user = await User.findById(userId)
+    .select('email profile role is_verified created_at')
+    .lean();
+  
+  return user;
+};
+
+// Lấy tất cả users với pagination
+exports.getAllUsers = async (options = {}) => {
+  const { page = 1, limit = 10, ...filters } = options;
+  
+  const users = await User.find(filters)
     .select('-hashed_password -refresh_token -otp -otp_expiration')
     .limit(limit * 1)
     .skip((page - 1) * limit)
-    .sort({ created_at: -1 });
-
-  const total = await User.countDocuments(filter);
-
+    .sort({ created_at: -1 })
+    .lean();
+    
+  const total = await User.countDocuments(filters);
+  
   return {
     users,
+    total,
     totalPages: Math.ceil(total / limit),
-    currentPage: page,
-    total
+    currentPage: page
   };
 };
 
+// Cập nhật profile user
 exports.updateUserProfile = async (userId, profileData) => {
-  const { username, avatar_url, cover_url } = profileData;
+  const { username, avatar_url, cover_url, bio } = profileData;
   
   const user = await User.findById(userId);
   if (!user) {
@@ -202,14 +219,11 @@ exports.updateUserProfile = async (userId, profileData) => {
     throw err;
   }
 
-  if (username) {
-    // Kiểm tra username đã tồn tại chưa
-    const existingUser = await User.findOne({ 
-      'profile.username': username, 
-      _id: { $ne: userId } 
-    });
-    if (existingUser) {
-      const err = new Error('Username đã được sử dụng');
+  // Kiểm tra username trùng lặp
+  if (username && username !== user.profile?.username) {
+    const existingUser = await User.findOne({ 'profile.username': username });
+    if (existingUser && existingUser._id.toString() !== userId) {
+      const err = new Error('Username đã tồn tại');
       err.status = 400;
       throw err;
     }
@@ -220,6 +234,7 @@ exports.updateUserProfile = async (userId, profileData) => {
   if (username) user.profile.username = username;
   if (avatar_url) user.profile.avatar_url = avatar_url;
   if (cover_url) user.profile.cover_url = cover_url;
+  if (bio !== undefined) user.profile.bio = bio;
 
   await user.save();
   
@@ -231,5 +246,12 @@ exports.updateUserProfile = async (userId, profileData) => {
       delete ret.otp_expiration;
       return ret;
     }
+  });
+};
+
+// Clear refresh token khi logout
+exports.clearRefreshToken = async (userId) => {
+  await User.findByIdAndUpdate(userId, { 
+    $unset: { refresh_token: 1 } 
   });
 };

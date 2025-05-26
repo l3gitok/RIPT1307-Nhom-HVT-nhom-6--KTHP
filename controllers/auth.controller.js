@@ -47,10 +47,18 @@ exports.login = async (req, res, next) => {
 };
 exports.logout = async (req, res, next) => {
   try {
-    await authService.logout(req.user);
-    res.status(204).send();  // 204 No Content
-  } catch (err) {
-    next(err);
+    const userId = req.user._id;
+    
+    // Clear refresh token from database
+    await authService.clearRefreshToken(userId);
+
+    res.json({
+      success: true,
+      message: 'Đăng xuất thành công!'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    next(error);
   }
 };
 exports.verifyEmail = async (req, res, next) => {
@@ -78,41 +86,147 @@ exports.resetPassword = async (req, res, next) => {
   }
 };
 
-exports.getUserData = async (req, res, next) => {
-  try {
-    const userId = req.params.id || req.user.id; // Lấy từ params hoặc user hiện tại
-    const user = await authService.getUserData(userId);
-    res.json({ success: true, user });
-  } catch (error) {
-    next(error);
-  }
-};
-
+// Lấy thông tin user hiện tại
 exports.getCurrentUser = async (req, res, next) => {
   try {
-    const user = await authService.getUserData(req.user.id);
-    res.json({ success: true, user });
+    // req.user đã được set bởi JWT middleware
+    const user = await authService.getUserById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User không tồn tại'
+      });
+    }
+
+    res.json({
+      success: true,
+      user: user
+    });
   } catch (error) {
+    console.error('Get current user error:', error);
     next(error);
   }
 };
 
+// Lấy thông tin user theo ID (public profile)
+exports.getUserData = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    // Validation
+    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID không hợp lệ'
+      });
+    }
+
+    const user = await authService.getPublicUserProfile(id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User không tồn tại'
+      });
+    }
+
+    res.json({
+      success: true,
+      user: user
+    });
+  } catch (error) {
+    console.error('Get user data error:', error);
+    next(error);
+  }
+};
+
+// Lấy tất cả users (admin only)
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const { page, limit, role, is_verified } = req.query;
-    const result = await authService.getAllUsers({ page, limit, role, is_verified });
-    res.json({ success: true, ...result });
+    const { page = 1, limit = 10, search, role, status } = req.query;
+    
+    const query = {};
+    if (search) {
+      query.$or = [
+        { email: { $regex: search, $options: 'i' } },
+        { 'profile.username': { $regex: search, $options: 'i' } }
+      ];
+    }
+    if (role) query.role = role;
+    if (status) query.is_verified = status === 'verified';
+
+    const result = await authService.getAllUsers({
+      ...query,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
+
+    res.json({
+      success: true,
+      ...result
+    });
   } catch (error) {
+    console.error('Get all users error:', error);
     next(error);
   }
 };
 
+// Cập nhật profile
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { username, avatar_url, cover_url } = req.body;
-    const user = await authService.updateUserProfile(req.user.id, { username, avatar_url, cover_url });
-    res.json({ success: true, user, message: 'Cập nhật profile thành công' });
+    const userId = req.user._id;
+    const { username, avatar_url, cover_url, bio } = req.body;
+
+    // Validation
+    if (username && username.length < 3) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username phải có ít nhất 3 ký tự'
+      });
+    }
+
+    const updatedUser = await authService.updateUserProfile(userId, {
+      username,
+      avatar_url,
+      cover_url,
+      bio
+    });
+
+    res.json({
+      success: true,
+      user: updatedUser,
+      message: 'Cập nhật profile thành công!'
+    });
   } catch (error) {
+    console.error('Update profile error:', error);
     next(error);
+  }
+};
+
+// Debug token
+exports.debugToken = (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'No token provided'
+    });
+  }
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({
+      success: true,
+      decoded,
+      message: 'Token is valid'
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: 'Invalid token',
+      error: error.message
+    });
   }
 };
