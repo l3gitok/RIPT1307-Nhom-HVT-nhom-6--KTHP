@@ -64,13 +64,9 @@ exports.getGameBySlug = async (slug) => {
   return game;
 };
 
-exports.updateGame = async (gameId, updateData, userId) => {
+exports.updateGame = async (gameId, updateData) => {
   const game = await Game.findById(gameId);
   if (!game) throw new Error('Game not found');
-  
-  if (game.created_by.toString() !== userId) {
-    throw new Error('Not authorized to update this game');
-  }
 
   if (updateData.title) {
     updateData.slug = slugify(updateData.title, { lower: true, strict: true });
@@ -85,14 +81,9 @@ exports.updateGame = async (gameId, updateData, userId) => {
   return updatedGame;
 };
 
-exports.deleteGame = async (gameId, userId) => {
+exports.deleteGame = async (gameId) => {
   const game = await Game.findById(gameId);
   if (!game) throw new Error('Game not found');
-  
-  if (game.created_by.toString() !== userId) {
-    throw new Error('Not authorized to delete this game');
-  }
-
   await Game.findByIdAndDelete(gameId);
   return { message: 'Game deleted successfully' };
 };
