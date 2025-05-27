@@ -11,14 +11,18 @@ const notificationRoutes = require('./routes/notification.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const userReportRoutes = require('./routes/user-report.routes');
 const followerRoutes = require('./routes/follow.routes');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const config = require('./config');
+
 
 const http = require('http');
 const { Server } = require('socket.io');
 const { initSocket } = require('./config/socket');
 const passport = require('./config/passport');
 const session = require('express-session');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
@@ -36,8 +40,6 @@ const apiLimiter = rateLimit({
   max: 1000, // Giới hạn tối đa 1000 yêu cầu trong 1 giờ
   message: 'Quá nhiều yêu cầu từ địa chỉ IP này. Vui lòng thử lại sau.'
 });
-
-const cors = require('cors');
 
 // Connect DB
 connectDB();
@@ -82,6 +84,9 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Apply rate limiting to all routes
 app.use('/api/', apiLimiter);
+
+// Rate limiting với Redis
+app.use(redisRateLimit(100, 60)); // 100 requests per minute
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -145,28 +150,42 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📱 API URL: http://localhost:${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('UNHANDLED REJECTION! 💥 Shutting down...');
-  console.error(err.name, err.message);
-  server.close(() => {
+// Connect to MongoDB
+mongoose.connect(config.mongoUri)
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+    
+    // Start server
+    const PORT = config.port;
+    server.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err);
     process.exit(1);
   });
+
+// Handle Redis connection
+redisClient.on('connect', () => {
+  console.log('✅ Redis connected successfully');
 });
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
-  console.error(err.name, err.message);
-  process.exit(1);
+redisClient.on('error', (err) => {
+  console.error('❌ Redis connection error:', err);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  
+  // Close Redis connection
+  redisClient.quit();
+  
+  // Close MongoDB connection
+  mongoose.connection.close();
+  
+  process.exit(0);
 });
 
 module.exports = app;
