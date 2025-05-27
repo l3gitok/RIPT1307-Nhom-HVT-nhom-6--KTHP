@@ -14,4 +14,12 @@ redisClient.on('error', (err) => {
   console.error('Redis connection error:', err);
 });
 
+redisClient.on('ready', () => {
+  console.log('Redis is ready');
+});
+
+redisClient.on('end', () => {
+  console.log('Redis connection ended');
+});
+
 module.exports = redisClient;
