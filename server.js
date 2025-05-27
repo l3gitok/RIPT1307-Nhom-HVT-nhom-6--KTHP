@@ -11,6 +11,7 @@ const notificationRoutes = require('./routes/notification.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const userReportRoutes = require('./routes/user-report.routes');
 const followerRoutes = require('./routes/follow.routes');
+const userBanRoutes = require('./routes/user-ban.routes');
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -93,7 +94,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/user-reports', userReportRoutes);
 app.use('/api/followers', followerRoutes);
-
+app.use('/api/user-bans', userBanRoutes);
 // Create HTTP server
 const server = http.createServer(app);
 
