@@ -37,7 +37,6 @@ const userSchema = new mongoose.Schema({
   ban_info: {
     reason: {
       type: String,
-      enum: ['spam', 'inappropriate', 'harassment', 'fake_account', 'other']
     },
     description: String,
     banned_by: {
