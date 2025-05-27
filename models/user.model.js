@@ -45,7 +45,16 @@ const userSchema = new mongoose.Schema({
       ref: 'User'
     },
     banned_at: Date,
-    ban_expires_at: Date
+    ban_expires_at: Date,
+    ban_type: {
+      type: String,
+      enum: ['direct', 'report'],
+      default: 'direct'
+    },
+    report_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'UserReport'
+    }
   },
   report_count: {
     type: Number,

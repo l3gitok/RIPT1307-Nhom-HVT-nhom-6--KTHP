@@ -20,7 +20,7 @@ router.patch('/:id', gameController.updateGame);
 router.delete('/:id', gameController.deleteGame);
 
 // Admin/Moderator routes
-router.use(isModerator);
+router.use(isAdmin);
 router.patch('/:id/approve', gameController.approveGame);
 
 module.exports = router;
