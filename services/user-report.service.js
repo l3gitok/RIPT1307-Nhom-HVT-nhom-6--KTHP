@@ -1,6 +1,6 @@
 const UserReport = require('../models/user-report.model');
 const User = require('../models/user.model');
-const Notification = require('../models/notification.model');
+const { Notification } = require('../models/notification.model');
 
 class UserReportService {
   // Tạo report mới
@@ -40,17 +40,23 @@ class UserReportService {
     reportedUser.last_reported_at = Date.now();
     await reportedUser.save();
 
-    // Tạo notification cho admin
-    await Notification.create({
-      user_id: process.env.ADMIN_ID,
-      type: 'new_user_report',
+    // Tìm tất cả user có role admin
+    const adminUsers = await User.find({ role: 'admin' });
+    
+    // Tạo notification cho tất cả admin
+    const notifications = adminUsers.map(admin => new Notification({
+      user_id: admin._id,
+      type: 'SYSTEM',
       payload: {
         report_id: report._id,
         reported_user_id,
         reporter_id: reporterId,
         reason
       }
-    });
+    }));
+
+    // Lưu tất cả notifications
+    await Notification.insertMany(notifications);
 
     return report;
   }

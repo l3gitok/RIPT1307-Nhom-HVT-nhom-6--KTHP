@@ -14,7 +14,6 @@ const userReportSchema = new mongoose.Schema({
   reason: {
     type: String,
     required: [true, 'Lý do report không được bỏ trống'],
-    enum: ['spam', 'inappropriate', 'harassment', 'fake_account', 'other']
   },
   description: {
     type: String,
