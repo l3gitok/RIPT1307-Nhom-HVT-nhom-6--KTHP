@@ -1,5 +1,5 @@
 ﻿import component from '@/locales/en-US/component';
-
+import path from 'path';
 export default [
 	{
 		path: '/user',
@@ -57,6 +57,24 @@ export default [
 		name: 'RandomUser',
 		component: './RandomUser',
 		icon: 'ArrowsAltOutlined',
+	},
+	{
+		path: '/quan_ly_user',
+		name: 'User Management',
+		component: './UserManager',
+		icon: 'UserOutlined',
+	},
+	{
+		path: '/GameManager',
+		name: 'Game Management',
+		component: './GameManager',
+		icon: 'AppstoreAddOutlined',
+	},
+	{
+		path: '/review-manager',
+		name: 'Review Management',
+		component: './ReviewManagement',
+		icon: 'FileSearchOutlined',
 	},
 
 	// DANH MUC HE THONG
