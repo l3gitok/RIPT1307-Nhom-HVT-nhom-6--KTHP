@@ -24,6 +24,7 @@ export default [
 				component: './user/Login/VerifyEmail',
 			},
 		],
+		
 	},
 
 	///////////////////////////////////
