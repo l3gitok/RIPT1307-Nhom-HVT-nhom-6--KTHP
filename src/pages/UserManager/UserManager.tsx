@@ -8,7 +8,7 @@ import BanUserForm, { BanUserFormValues } from './BanUserForm';
 
 const UserManager = () => {
 	const { data, getDataUser, setRow, isEdit, setVisible, setIsEdit, visible } = useModel('user');
-	const [searchId, setSearchId] = useState('');
+	const [searchUsername, setSearchUsername] = useState('');
 	const [searchEmail, setSearchEmail] = useState('');
 	const [banModalVisible, setBanModalVisible] = useState(false);
 	const [banLoading, setBanLoading] = useState(false);
@@ -19,9 +19,9 @@ const UserManager = () => {
 	}, []);
 
 	const filteredData = data?.filter((item: any) => {
-		const matchId = searchId ? (item._id || '').toLowerCase().includes(searchId.toLowerCase()) : true;
+		const matchUsername = searchUsername ? (item.profile?.username || '').toLowerCase().includes(searchUsername.toLowerCase()) : true;
 		const matchEmail = searchEmail ? (item.email || '').toLowerCase().includes(searchEmail.toLowerCase()) : true;
-		return matchId && matchEmail;
+		return matchUsername && matchEmail;
 	});
 
 	const handleBanClick = (record: any) => {
@@ -169,9 +169,9 @@ const UserManager = () => {
 				<Col>
 					<Input.Search
 						allowClear
-						placeholder='Tìm theo ID'
-						value={searchId}
-						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchId(e.target.value)}
+						placeholder='Tìm theo Username'
+						value={searchUsername}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchUsername(e.target.value)}
 						style={{ width: 200 }}
 					/>
 				</Col>

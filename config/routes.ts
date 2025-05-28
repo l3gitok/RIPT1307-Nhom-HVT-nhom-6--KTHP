@@ -36,6 +36,7 @@ export default [
 				component: './user/Login/ResetPassword',
 			},
 		],
+		
 	},
 
 	///////////////////////////////////
