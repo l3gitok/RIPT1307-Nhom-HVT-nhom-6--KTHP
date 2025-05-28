@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
     enum: ['active', 'banned', 'deleted'],
     default: 'active'
   },
-  ban_info: {
+  ban_info: { 
     reason: {
       type: String,
     },
