@@ -14,13 +14,13 @@ const Settings: LayoutSettings & {
 	fixedHeader: false,
 	fixSiderbar: true,
 	colorWeak: false,
-	title: 'LẬP TRÌNH WEB - RIPT',
 	pwa: false,
-	logo: '/logo.png',
 	iconfontUrl: '',
 	headerTheme: 'light',
 	headerHeight: 60,
 	siderWidth: 220,
+	title: '',
+	logo: '',
 };
 
 export default Settings;

@@ -76,11 +76,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
 			</OIDCBounder>
 		),
 		noFound: <NotFoundContent />,
-		rightContentRender: () => <RightContent />,
+		rightContentRender: () => null,
 		disableContentMargin: false,
-
 		footerRender: () => <Footer />,
-
+		headerRender: () => null,
+		menuRender: () => null,
 		onPageChange: () => {
 			if (initialState?.currentUser) {
 				const { location } = history;
@@ -97,22 +97,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
 					history.replace('/403');
 			}
 		},
-
-		menuItemRender: (item: any, dom: any) => (
-			<a
-				className='not-underline'
-				key={item?.path}
-				href={item?.path}
-				onClick={(e) => {
-					e.preventDefault();
-					history.push(item?.path ?? '/');
-				}}
-				style={{ display: 'block' }}
-			>
-				{dom}
-			</a>
-		),
-
+		menuItemRender: (item: any, dom: any) => null,
 		childrenRender: (dom) => (
 			<OIDCBounder>
 				<ErrorBoundary>

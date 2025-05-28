@@ -3,7 +3,6 @@ import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useModel } from 'umi';
 import dayjs from 'dayjs';
-// import FormUser from './FormUser'; // XÓA DÒNG NÀY
 import BanUserForm, { BanUserFormValues } from './BanUserForm';
 
 const UserManager = () => {
@@ -19,7 +18,9 @@ const UserManager = () => {
 	}, []);
 
 	const filteredData = data?.filter((item: any) => {
-		const matchUsername = searchUsername ? (item.profile?.username || '').toLowerCase().includes(searchUsername.toLowerCase()) : true;
+		const matchUsername = searchUsername
+			? (item.profile?.username || '').toLowerCase().includes(searchUsername.toLowerCase())
+			: true;
 		const matchEmail = searchEmail ? (item.email || '').toLowerCase().includes(searchEmail.toLowerCase()) : true;
 		return matchUsername && matchEmail;
 	});

@@ -4,7 +4,6 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { history } from 'umi';
 import axios from 'axios';
 import styles from '../Login/index.less';
-import { User } from '@/services/UserServices';
 
 const Login: React.FC = () => {
 	const [submitting, setSubmitting] = useState(false);
@@ -15,46 +14,34 @@ const Login: React.FC = () => {
 		try {
 			setSubmitting(true);
 
-			// Gửi yêu cầu đăng nhập API với withCredentials để nhận cookies
+			// Gửi yêu cầu đăng nhập API
 			const response = await axios.post('https://gamehubapi-test.onrender.com/api/auth/login', {
 				email: values.email,
 				password: values.password,
-			}, {
-				withCredentials: true // Quan trọng: Cho phép gửi/nhận cookies
 			});
 
 			// Kiểm tra mã phản hồi API
-			if (response.status === 200 && response?.data?.user) {
-				const user = response?.data?.user as User;
-				
-				// Kiểm tra trạng thái banned
-				if (user.status === 'banned') {
-					message.error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ admin để biết thêm chi tiết.');
-					return;
-				}
+			if (response.status === 200 && response?.data?.accessToken) {
+				// Lưu token vào localStorage
+				localStorage.setItem('accessToken', response?.data?.accessToken);
+				localStorage.setItem('refreshToken', response?.data?.refreshToken);
 
-				// Lưu thông tin user cần thiết vào localStorage (không lưu token)
-				const userInfo = {
-					id: user._id,
-					email: user.email,
-					role: user.role,
-					username: user.profile.username,
-					avatar: user.profile.avatar_url
-				};
-				localStorage.setItem('userInfo', JSON.stringify(userInfo));
+				// Lưu thông tin người dùng nếu cần thiết
+				const user = response?.data?.user;
+				localStorage.setItem('user', JSON.stringify(user));
 
-				// Thực hiện hành động sau khi đăng nhập thành công
+				// Thực hiện hành động sau khi đăng nhập thành công (như lấy thông tin người dùng)
 				message.success('Đăng nhập thành công!');
-				history.push('/');
+				if (user?.role === 'admin') {
+					history.push('/admin/dashboard'); // Điều hướng đến trang dashboard admin
+				} else {
+					history.push('/user/login');
+				} // Điều hướng đến trang dashboard hoặc trang bạn muốn sau khi đăng nhập thành công
 			} else {
 				message.error('Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin');
 			}
-		} catch (error: any) {
-			if (error.response?.data?.message) {
-				message.error(error.response.data.message);
-			} else {
-				message.error('Đăng nhập thất bại, vui lòng thử lại.');
-			}
+		} catch (error) {
+			message.error('Đăng nhập thất bại, vui lòng thử lại.');
 		} finally {
 			setSubmitting(false);
 		}
@@ -110,7 +97,7 @@ const Login: React.FC = () => {
 					</Form>
 
 					<div style={{ textAlign: 'center', marginTop: '10px' }}>
-						<Button type="link" onClick={() => history.push('/user/forgot-password')}>
+						<Button type='link' onClick={() => history.push('/user/forgot-password')}>
 							Quên mật khẩu?
 						</Button>
 					</div>

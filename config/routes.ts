@@ -26,9 +26,9 @@ export default [
 			{
 				name: 'forgot-password',
 				layout: false,
-  				path: '/user/forgot-password',
-  				component: './user/Login/ForgotPassWord',
-			},	
+				path: '/user/forgot-password',
+				component: './user/Login/ForgotPassWord',
+			},
 			{
 				name: 'reset-password',
 				layout: false,
@@ -36,7 +36,6 @@ export default [
 				component: './user/Login/ResetPassword',
 			},
 		],
-		
 	},
 
 	///////////////////////////////////
@@ -47,50 +46,38 @@ export default [
 		component: './TrangChu',
 		icon: 'HomeOutlined',
 	},
-	{
-		path: '/gioi-thieu',
-		name: 'About',
-		component: './TienIch/GioiThieu',
-		hideInMenu: true,
-	},
-	{
-		path: '/random-user',
-		name: 'RandomUser',
-		component: './RandomUser',
-		icon: 'ArrowsAltOutlined',
-	},
-	{
-		path: '/quan_ly_user',
-		name: 'User Management',
-		component: './UserManager',
-		icon: 'UserOutlined',
-	},
-	{
-		path: '/GameManager',
-		name: 'Game Management',
-		component: './GameManager',
-		icon: 'AppstoreAddOutlined',
-	},
-	{
-		path: '/review-manager',
-		name: 'Review Management',
-		component: './ReviewManagement',
-		icon: 'FileSearchOutlined',
-	},
 
-	// DANH MUC HE THONG
-	// {
-	// 	name: 'DanhMuc',
-	// 	path: '/danh-muc',
-	// 	icon: 'copy',
-	// 	routes: [
-	// 		{
-	// 			name: 'ChucVu',
-	// 			path: 'chuc-vu',
-	// 			component: './DanhMuc/ChucVu',
-	// 		},
-	// 	],
-	// },
+	{
+		path: 'admin',
+		name: 'Admin',
+		icon: 'UserOutlined',
+		routes: [
+			{
+				path: 'admin/quan_ly_user',
+				name: 'User Management',
+				component: './UserManager',
+				icon: 'UserOutlined',
+			},
+			{
+				path: 'admin/GameManager',
+				name: 'Game Management',
+				component: './GameManager',
+				icon: 'AppstoreAddOutlined',
+			},
+			{
+				path: 'admin/review-manager',
+				name: 'Review Management',
+				component: './ReviewManagement',
+				icon: 'FileSearchOutlined',
+			},
+			{
+				path: 'admin/report-manager',
+				name: 'Report Management',
+				component: './ReportManagement',
+				icon: 'WarningOutlined',
+			},
+		],
+	},
 
 	{
 		path: '/notification',
