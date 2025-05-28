@@ -25,11 +25,11 @@ const Register = () => {
 			if (response.status === 201) {
 				message.success('Đăng ký thành công! Vui lòng xác thực email của bạn.');
 
-				// Store email for OTP verification
-				localStorage.setItem('verification_email', values.email);
-
-				// Navigate to OTP verification page
-				window.location.href = '/user/verify-email'; // Thay vì history.push()
+				// Gửi email qua query params khi chuyển trang (lấy từ input)
+				history.push({
+					pathname: '/user/verify-email',
+					query: { email: values.email },
+				});
 			}
 		} catch (error: any) {
 			message.error(error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');

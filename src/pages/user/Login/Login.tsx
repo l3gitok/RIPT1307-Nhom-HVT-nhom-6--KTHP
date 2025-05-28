@@ -32,7 +32,7 @@ const Login: React.FC = () => {
 
 				// Thực hiện hành động sau khi đăng nhập thành công (như lấy thông tin người dùng)
 				message.success('Đăng nhập thành công!');
-				history.push('/dashboard'); // Điều hướng đến trang dashboard hoặc trang bạn muốn sau khi đăng nhập thành công
+				history.push('/'); // Điều hướng đến trang dashboard hoặc trang bạn muốn sau khi đăng nhập thành công
 			} else {
 				message.error('Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin');
 			}
