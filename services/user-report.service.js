@@ -118,7 +118,7 @@ class UserReportService {
       // Thông báo cho user bị ban
       await Notification.create({
         user_id: user._id,
-        type: 'user_banned',
+        type: 'SYSTEM',
         payload: {
           reason: report.reason,
           description: admin_note,
