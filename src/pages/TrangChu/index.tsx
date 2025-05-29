@@ -8,14 +8,19 @@ import ProfileSection from '@/components/GameHub/ProfileSection';
 import PostModal from '@/components/GameHub/PostModal';
 import PostContent from '@/components/GameHub/PostContent';
 import CommentModal from '@/components/GameHub/CommentModal';
+import { history } from 'umi';
 
 const { Text } = Typography;
 const { Header, Content } = Layout;
 
 const userMenu = (
 	<Menu>
-		<Menu.Item key='1'>Đăng ký</Menu.Item>
-		<Menu.Item key='2'>Đăng nhập</Menu.Item>
+		<Menu.Item key='register' onClick={() => history.push('/user/register')}>
+			Đăng ký
+		</Menu.Item>
+		<Menu.Item key='login' onClick={() => history.push('/user/login')}>
+			Đăng nhập
+		</Menu.Item>
 	</Menu>
 );
 
@@ -65,7 +70,6 @@ const Desktop = (): JSX.Element => {
 				setSearchText={setSearchText}
 				activeNav={activeNav}
 				setActiveNav={setActiveNav}
-				userMenu={userMenu}
 				NAV_ITEMS={NAV_ITEMS}
 			/>
 			<Navbar

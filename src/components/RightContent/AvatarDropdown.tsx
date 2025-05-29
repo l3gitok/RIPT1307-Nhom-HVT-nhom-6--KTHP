@@ -29,9 +29,13 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 		: initialState.currentUser?.name ?? (initialState.currentUser?.preferred_username || '');
 	const lastNameChar = fullName.split(' ')?.at(-1)?.[0]?.toUpperCase();
 
+	const isAdmin =
+		initialState.currentUser?.realm_access?.roles?.includes('admin') ||
+		initialState.currentUser?.realm_access?.roles?.includes('QUAN_TRI_VIEN');
+
 	const items: ItemType[] = [
 		{
-			key: 'name',
+			key: 'profile',
 			icon: <UserOutlined />,
 			label: fullName,
 		},
@@ -57,14 +61,18 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 			onClick: () => window.open(landingUrl),
 		},
 		{ type: 'divider', key: 'divider' },
-		{
-			key: 'logout',
-			icon: <LogoutOutlined />,
-			label: 'Đăng xuất',
-			onClick: loginOut,
-			danger: true,
-		},
 	];
+
+	if (isAdmin) {
+		items.push({
+			key: 'admin',
+			icon: <UserOutlined />,
+			label: 'Quản lý admin',
+			onClick: () => (window.location.href = '/admin/quan_ly_user'),
+		});
+	}
+
+	items.push({ key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', onClick: loginOut, danger: true });
 
 	if (menu && !initialState.currentUser.realm_access?.roles?.includes('QUAN_TRI_VIEN')) {
 		// items.splice(1, 0, {

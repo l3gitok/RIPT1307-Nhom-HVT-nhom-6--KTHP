@@ -46,39 +46,46 @@ export default [
 		component: './TrangChu',
 		icon: 'HomeOutlined',
 	},
-
 	{
-		path: 'admin',
+		path: '/admin',
 		name: 'Admin',
-		icon: 'UserOutlined',
+		component: '@/components/AdminLayout',
 		routes: [
 			{
-				path: 'admin/quan_ly_user',
+				path: '/admin',
+				redirect: '/admin/quan_ly_user',
+			},
+			{
+				path: '/admin/quan_ly_user',
 				name: 'User Management',
 				component: './UserManager',
 				icon: 'UserOutlined',
 			},
 			{
-				path: 'admin/GameManager',
+				path: '/admin/GameManager',
 				name: 'Game Management',
 				component: './GameManager',
 				icon: 'AppstoreAddOutlined',
 			},
 			{
-				path: 'admin/review-manager',
+				path: '/admin/review-manager',
 				name: 'Review Management',
 				component: './ReviewManagement',
 				icon: 'FileSearchOutlined',
 			},
 			{
-				path: 'admin/report-manager',
+				path: '/admin/report-manager',
 				name: 'Report Management',
 				component: './ReportManagement',
 				icon: 'WarningOutlined',
 			},
 		],
 	},
-
+	{
+		path: '/profile',
+		name: 'Thông tin cá nhân',
+		component: './NguoiDung',
+	},
 	{
 		path: '/notification',
 		routes: [
