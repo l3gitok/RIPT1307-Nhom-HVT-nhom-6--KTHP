@@ -34,12 +34,17 @@ const ReviewManagement: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 	const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 	const [isModalVisible, setIsModalVisible] = useState(false);
-
 	const loadReviews = async (status: string) => {
 		setLoading(true);
 		try {
-			const { reviews: fetchedReviews } = await fetchReviews({ page: 1, limit: 100 });
-			setReviews(fetchedReviews.filter((r) => r.status === status));
+			const response = await ReviewService.getReviews({ status: status as 'pending' | 'approved' | 'rejected' });
+			if (response.data && Array.isArray(response.data)) {
+				setReviews(response.data);
+			} else if (response.data?.reviews && Array.isArray(response.data.reviews)) {
+				setReviews(response.data.reviews);
+			} else {
+				setReviews([]);
+			}
 		} catch (error) {
 			console.error('Lỗi khi fetch reviews:', error);
 			message.error('Không thể tải danh sách review');
@@ -50,24 +55,34 @@ const ReviewManagement: React.FC = () => {
 	useEffect(() => {
 		loadReviews(activeKey);
 	}, [activeKey]);
-
 	const handleApprove = async (id: string) => {
 		try {
-			await updateReviewStatus(id, 'approved');
+			const token = localStorage.getItem('accessToken');
+			if (!token) {
+				throw new Error('Unauthorized');
+			}
+			await ReviewService.updateReviewStatus(id, 'approved', token);
 			message.success('Duyệt review thành công');
 			loadReviews(activeKey);
-		} catch {
-			message.error('Duyệt review thất bại');
+		} catch (error: any) {
+			const errorMessage = error.response?.data?.message || error.message || 'Duyệt review thất bại';
+			message.error(errorMessage);
+			console.error('Error approving review:', error);
 		}
 	};
-
 	const handleReject = async (id: string) => {
 		try {
-			await updateReviewStatus(id, 'rejected');
+			const token = localStorage.getItem('accessToken');
+			if (!token) {
+				throw new Error('Unauthorized');
+			}
+			await ReviewService.updateReviewStatus(id, 'rejected', token);
 			message.success('Từ chối review thành công');
 			loadReviews(activeKey);
-		} catch {
-			message.error('Từ chối review thất bại');
+		} catch (error: any) {
+			const errorMessage = error.response?.data?.message || error.message || 'Từ chối review thất bại';
+			message.error(errorMessage);
+			console.error('Error rejecting review:', error);
 		}
 	};
 
@@ -166,9 +181,9 @@ const ReviewManagement: React.FC = () => {
 			width: 120,
 			render: (images) => (
 				<Space size={4}>
-					{images?.slice(0, 3).map((url: string, index: number) => (
+					{images?.slice(0, 3).map((url: string) => (
 						<Image
-							key={index}
+							key={url}
 							src={url}
 							alt='review'
 							width={30}
@@ -359,21 +374,19 @@ const ReviewManagement: React.FC = () => {
 								{formatDate(selectedReview.created_at)}
 							</Descriptions.Item>
 						</Descriptions>
-
 						<Title level={5}>Nội dung đánh giá:</Title>
 						<Card size='small' style={{ marginBottom: 16 }}>
 							<Paragraph>{selectedReview.content}</Paragraph>
-						</Card>
-
+						</Card>{' '}
 						{selectedReview.images && selectedReview.images.length > 0 && (
 							<>
 								<Title level={5}>Hình ảnh đính kèm:</Title>
 								<Space wrap>
-									{selectedReview.images.map((url: string, index: number) => (
+									{selectedReview.images.map((url: string) => (
 										<Image
-											key={index}
+											key={url}
 											src={url}
-											alt={`review-image-${index}`}
+											alt='review-image'
 											width={100}
 											height={100}
 											style={{ objectFit: 'cover', borderRadius: '8px' }}

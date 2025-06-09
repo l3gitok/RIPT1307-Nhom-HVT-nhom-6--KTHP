@@ -8,6 +8,7 @@ import ProfileSection from '@/components/GameHub/ProfileSection';
 import PostModal from '@/components/GameHub/PostModal';
 import PostContent from '@/components/GameHub/PostContent';
 import CommentModal from '@/components/GameHub/CommentModal';
+import HomeReviews from '@/components/GameHub/HomeReviews';
 import { history } from 'umi';
 
 const { Text } = Typography;
@@ -111,20 +112,8 @@ const Desktop = (): JSX.Element => {
 					handleUpload={handleUpload}
 				/>
 				{/* Main content */}
-				<div
-					style={{
-						maxWidth: '600px',
-						margin: '0 auto',
-						background: 'rgba(224, 231, 231, 0.5)',
-						borderRadius: '20px',
-						padding: '20px',
-						position: 'relative',
-					}}
-				>
-					{/* Profile section */}
-					<ProfileSection name='Anh Tá Se Lu' tag='Liên minh huyền thoại' />
-					{/* Content + buttons */}
-					<PostContent onCommentClick={() => setCommentModalOpen(true)} />
+				<div style={{ maxWidth: '600px', margin: '0 auto' }}>
+					<HomeReviews />
 				</div>
 				{/* Modal bình luận */}
 				<CommentModal

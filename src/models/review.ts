@@ -27,8 +27,13 @@ export async function fetchReviews(params?: {
 export async function updateReviewStatus(id: string, status: 'pending' | 'approved' | 'rejected'): Promise<Review> {
 	const response = await axios.patch(
 		`${API_URL}/${id}/status`,
-		{ status }, // body chính xác
-		{ headers: getAuthHeader() },
+		{ status },
+		{
+			headers: {
+				...getAuthHeader(),
+				'Content-Type': 'application/json',
+			},
+		},
 	);
-	return response.data.data;
+	return response.data;
 }
