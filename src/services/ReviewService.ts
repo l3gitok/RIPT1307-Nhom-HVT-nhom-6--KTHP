@@ -48,9 +48,4 @@ export const ReviewService = {
 	async commentReview(id: string, content: string) {
 		return axios.post(`${API_URL}/reviews/${id}/comments`, { content });
 	},
-
-	// Cập nhật trạng thái review (approve/reject)
-	async updateReviewStatus(id: string, status: 'pending' | 'approved' | 'rejected') {
-		return axios.patch(`${API_URL}reviews/${id}/status`, { status });
-	},
 };
