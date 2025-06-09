@@ -17,8 +17,8 @@ import {
 } from 'antd';
 import { EyeOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { fetchReviews, updateReviewStatus } from '../../models/review';
-import type { Review } from '../../services/ReviewServices';
+import { ReviewService } from '@/services';
+import type { Review } from '@/services/ReviewServices';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -37,13 +37,9 @@ const ReviewManagement: React.FC = () => {
 	const loadReviews = async (status: string) => {
 		setLoading(true);
 		try {
-			const response = await ReviewService.getReviews({ status: status as 'pending' | 'approved' | 'rejected' });
-			if (response.data && Array.isArray(response.data)) {
-				setReviews(response.data);
-			} else if (response.data?.reviews && Array.isArray(response.data.reviews)) {
+			const response = await ReviewService.getReviews({ status });
+			if (response?.data && Array.isArray(response.data.reviews)) {
 				setReviews(response.data.reviews);
-			} else {
-				setReviews([]);
 			}
 		} catch (error) {
 			console.error('Lỗi khi fetch reviews:', error);
@@ -57,32 +53,21 @@ const ReviewManagement: React.FC = () => {
 	}, [activeKey]);
 	const handleApprove = async (id: string) => {
 		try {
-			const token = localStorage.getItem('accessToken');
-			if (!token) {
-				throw new Error('Unauthorized');
-			}
-			await ReviewService.updateReviewStatus(id, 'approved', token);
+			await ReviewService.updateReviewStatus(id, 'approved');
 			message.success('Duyệt review thành công');
 			loadReviews(activeKey);
-		} catch (error: any) {
-			const errorMessage = error.response?.data?.message || error.message || 'Duyệt review thất bại';
-			message.error(errorMessage);
-			console.error('Error approving review:', error);
+		} catch {
+			message.error('Duyệt review thất bại');
 		}
 	};
+
 	const handleReject = async (id: string) => {
 		try {
-			const token = localStorage.getItem('accessToken');
-			if (!token) {
-				throw new Error('Unauthorized');
-			}
-			await ReviewService.updateReviewStatus(id, 'rejected', token);
+			await ReviewService.updateReviewStatus(id, 'rejected');
 			message.success('Từ chối review thành công');
 			loadReviews(activeKey);
-		} catch (error: any) {
-			const errorMessage = error.response?.data?.message || error.message || 'Từ chối review thất bại';
-			message.error(errorMessage);
-			console.error('Error rejecting review:', error);
+		} catch {
+			message.error('Từ chối review thất bại');
 		}
 	};
 
@@ -181,9 +166,9 @@ const ReviewManagement: React.FC = () => {
 			width: 120,
 			render: (images) => (
 				<Space size={4}>
-					{images?.slice(0, 3).map((url: string) => (
+					{images?.slice(0, 3).map((url: string, index: number) => (
 						<Image
-							key={url}
+							key={index}
 							src={url}
 							alt='review'
 							width={30}
@@ -374,19 +359,21 @@ const ReviewManagement: React.FC = () => {
 								{formatDate(selectedReview.created_at)}
 							</Descriptions.Item>
 						</Descriptions>
+
 						<Title level={5}>Nội dung đánh giá:</Title>
 						<Card size='small' style={{ marginBottom: 16 }}>
 							<Paragraph>{selectedReview.content}</Paragraph>
-						</Card>{' '}
+						</Card>
+
 						{selectedReview.images && selectedReview.images.length > 0 && (
 							<>
 								<Title level={5}>Hình ảnh đính kèm:</Title>
 								<Space wrap>
-									{selectedReview.images.map((url: string) => (
+									{selectedReview.images.map((url: string, index: number) => (
 										<Image
-											key={url}
+											key={index}
 											src={url}
-											alt='review-image'
+											alt={`review-image-${index}`}
 											width={100}
 											height={100}
 											style={{ objectFit: 'cover', borderRadius: '8px' }}
