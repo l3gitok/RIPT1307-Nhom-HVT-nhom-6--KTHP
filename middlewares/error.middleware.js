@@ -1,4 +1,6 @@
 // middlewares/error.middleware.js
+const { validationResult } = require('express-validator');
+
 exports.errorHandler = (err, req, res, next) => {
   console.error(err.stack);
 
@@ -36,4 +38,16 @@ exports.errorHandler = (err, req, res, next) => {
   res.status(err.status || 500).json({
     message: err.message || 'Internal Server Error'
   });
+};
+
+exports.handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Dữ liệu không hợp lệ',
+      errors: errors.array()
+    });
+  }
+  next();
 };
