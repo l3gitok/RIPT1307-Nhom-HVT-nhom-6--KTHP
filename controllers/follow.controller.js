@@ -1,19 +1,71 @@
 const followService = require('../services/follow.service');
+const { validationResult } = require('express-validator');
 
 // Follow một người dùng
 exports.followUser = async (req, res) => {
   try {
+    // Check validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Dữ liệu không hợp lệ',
+        errors: errors.array()
+      });
+    }
+
     const { userId } = req.params;
     const follow = await followService.followUser(req.user._id, userId);
     
-    res.status(200).json({
+    res.status(201).json({
       success: true,
-      data: follow
+      message: 'Đã follow thành công',
+      data: {
+        follow,
+        action: 'followed'
+      }
     });
   } catch (error) {
-    res.status(400).json({
+    console.error('Follow error:', error);
+    
+    if (error.message === 'Không thể follow chính mình') {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+        code: 'SELF_FOLLOW_ERROR'
+      });
+    }
+    
+    if (error.message === 'Đã follow người dùng này') {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+        code: 'DUPLICATE_FOLLOW_ERROR',
+        suggestion: 'Use unfollow endpoint to unfollow'
+      });
+    }
+    
+    if (error.message === 'Người dùng không tồn tại') {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+        code: 'USER_NOT_FOUND'
+      });
+    }
+
+    if (error.message === 'Không thể follow người dùng đã bị khóa') {
+      return res.status(403).json({
+        success: false,
+        message: error.message,
+        code: 'USER_BANNED'
+      });
+    }
+    
+    res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Lỗi server khi follow user',
+      code: 'INTERNAL_SERVER_ERROR',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -21,17 +73,41 @@ exports.followUser = async (req, res) => {
 // Unfollow một người dùng
 exports.unfollowUser = async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Dữ liệu không hợp lệ',
+        errors: errors.array()
+      });
+    }
+
     const { userId } = req.params;
-    const result = await followService.unfollowUser(req.user._id, userId);
+    await followService.unfollowUser(req.user._id, userId);
     
     res.status(200).json({
       success: true,
-      message: 'Đã unfollow thành công'
+      message: 'Đã unfollow thành công',
+      data: {
+        action: 'unfollowed'
+      }
     });
   } catch (error) {
-    res.status(400).json({
+    console.error('Unfollow error:', error);
+    
+    if (error.message === 'Chưa follow người dùng này') {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+        code: 'NOT_FOLLOWING_ERROR'
+      });
+    }
+    
+    res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Lỗi server khi unfollow user',
+      code: 'INTERNAL_SERVER_ERROR',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -40,8 +116,10 @@ exports.unfollowUser = async (req, res) => {
 exports.getFollowing = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
+    const userId = req.params.userId || req.user._id;
+    
     const result = await followService.getFollowing(
-      req.user._id,
+      userId,
       parseInt(page),
       parseInt(limit)
     );
@@ -51,10 +129,11 @@ exports.getFollowing = async (req, res) => {
       data: result
     });
   } catch (error) {
+    console.error('Get following error:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi lấy danh sách following',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -63,8 +142,10 @@ exports.getFollowing = async (req, res) => {
 exports.getFollowers = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
+    const userId = req.params.userId || req.user._id;
+    
     const result = await followService.getFollowers(
-      req.user._id,
+      userId,
       parseInt(page),
       parseInt(limit)
     );
@@ -74,10 +155,11 @@ exports.getFollowers = async (req, res) => {
       data: result
     });
   } catch (error) {
+    console.error('Get followers error:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi lấy danh sách followers',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -86,17 +168,18 @@ exports.getFollowers = async (req, res) => {
 exports.checkFollowStatus = async (req, res) => {
   try {
     const { userId } = req.params;
-    const isFollowing = await followService.checkFollowStatus(req.user._id, userId);
+    const status = await followService.checkFollowStatus(req.user._id, userId);
     
     res.status(200).json({
       success: true,
-      data: { isFollowing }
+      data: status
     });
   } catch (error) {
+    console.error('Check follow status error:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi kiểm tra trạng thái follow',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -104,17 +187,42 @@ exports.checkFollowStatus = async (req, res) => {
 // Lấy số lượng following và followers
 exports.getFollowCounts = async (req, res) => {
   try {
-    const counts = await followService.getFollowCounts(req.user._id);
+    const userId = req.params.userId || req.user._id;
+    const counts = await followService.getFollowCounts(userId);
     
     res.status(200).json({
       success: true,
       data: counts
     });
   } catch (error) {
+    console.error('Get follow counts error:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi lấy số lượng follow',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}; 
+};
+
+// Lấy mutual follows
+exports.getMutualFollows = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const mutuals = await followService.getMutualFollows(req.user._id, userId);
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        mutualFollows: mutuals,
+        count: mutuals.length
+      }
+    });
+  } catch (error) {
+    console.error('Get mutual follows error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi khi lấy danh sách mutual follows',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

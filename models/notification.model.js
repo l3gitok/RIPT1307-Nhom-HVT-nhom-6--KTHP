@@ -2,57 +2,56 @@ const mongoose = require('mongoose');
 
 // Định nghĩa các loại thông báo
 const NOTIFICATION_TYPES = {
-  FRIEND_REQUEST: 'FRIEND_REQUEST',
-  FRIEND_ACCEPTED: 'FRIEND_ACCEPTED',
-  GAME_INVITE: 'GAME_INVITE',
-  GAME_RESULT: 'GAME_RESULT',
-  SYSTEM: 'SYSTEM'
+  FOLLOW: 'follow',
+  UNFOLLOW: 'unfollow', 
+  LIKE_POST: 'like_post',
+  COMMENT_POST: 'comment_post',
+  LIKE_REVIEW: 'like_review',
+  COMMENT_REVIEW: 'comment_review',
+  SYSTEM: 'system',
+  GAME_UPDATE: 'game_update'
 };
 
 const notificationSchema = new mongoose.Schema({
-  user_id: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User', 
+  recipient: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
-    index: true,
-    description: 'ID của người dùng nhận thông báo'
+    index: true
   },
-  type: { 
-    type: String, 
-    required: true,
+  sender: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
+  type: {
+    type: String,
     enum: Object.values(NOTIFICATION_TYPES),
-    description: 'Loại thông báo'
+    required: true
   },
-  payload: { 
+  title: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  data: {
     type: mongoose.Schema.Types.Mixed,
-    description: 'Dữ liệu bổ sung của thông báo'
+    default: {}
   },
-  read: { 
-    type: Boolean, 
-    default: false,
-    index: true,
-    description: 'Trạng thái đã đọc của thông báo'
+  is_read: {
+    type: Boolean,
+    default: false
   },
-  created_at: { 
-    type: Date, 
-    default: Date.now,
-    index: true,
-    description: 'Thời gian tạo thông báo'
-  },
-  updated_at: {
+  created_at: {
     type: Date,
-    default: Date.now,
-    description: 'Thời gian cập nhật thông báo'
+    default: Date.now
   }
 }, {
-  timestamps: true // Tự động cập nhật created_at và updated_at
+  timestamps: true
 });
-
-// Tạo compound index cho việc query thông báo theo user và thời gian
-notificationSchema.index({ user_id: 1, created_at: -1 });
-
-// Tạo compound index cho việc query thông báo chưa đọc
-notificationSchema.index({ user_id: 1, read: 1 });
 
 module.exports = {
   Notification: mongoose.model('Notification', notificationSchema),
