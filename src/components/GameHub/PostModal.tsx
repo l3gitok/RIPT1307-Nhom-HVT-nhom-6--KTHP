@@ -88,10 +88,10 @@ const PostModal: React.FC<PostModalProps> = ({
 						const file = new File([u8arr], fileName, { type: mime });
 
 						const response = await UploadService.uploadImage(file, token);
-						if (!response.data?.url) {
+						if (!response.data?.data?.url) {
 							throw new Error('Không nhận được URL ảnh từ server');
 						}
-						return response.data.url;
+						return response.data.data.url;
 					});
 
 					imageUrls = await Promise.all(uploadPromises);

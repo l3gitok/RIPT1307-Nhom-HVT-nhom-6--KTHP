@@ -28,10 +28,14 @@ export const ReviewService = {
 			headers: { Authorization: `Bearer ${token}` },
 		});
 	},
-
 	// Cập nhật trạng thái review (approve/reject)
 	async updateReviewStatus(id: string, status: 'pending' | 'approved' | 'rejected') {
-		return axios.patch(`${API_URL}/reviews/${id}/status`, { status });
+		const token = localStorage.getItem('accessToken');
+		return axios.patch(
+			`${API_URL}/reviews/${id}/status`,
+			{ status },
+			{ headers: { Authorization: `Bearer ${token}` } },
+		);
 	},
 
 	// Like một review

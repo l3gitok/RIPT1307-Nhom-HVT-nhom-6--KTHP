@@ -4,8 +4,11 @@ import type { AxiosResponse } from 'axios';
 const API_URL = 'https://gamehubapi-test.onrender.com/api';
 
 interface UploadResponse {
-	url: string;
-	message: string;
+	success: boolean;
+	data: {
+		url: string;
+		public_id: string;
+	};
 }
 
 export const UploadService = {
@@ -24,15 +27,16 @@ export const UploadService = {
 
 			const headers = {
 				Authorization: `Bearer ${token}`,
-				Accept: 'application/json',
+				'Content-Type': 'multipart/form-data',
 			};
-			const response = await axios.post<UploadResponse>(`${API_URL}/upload`, formData, {
+
+			const response = await axios.post<UploadResponse>(`${API_URL}/upload/image`, formData, {
 				headers,
 				maxContentLength: Infinity,
 				maxBodyLength: Infinity,
 			});
 
-			if (!response.data?.url) {
+			if (!response.data?.data?.url) {
 				throw new Error('Upload failed: No URL returned');
 			}
 
@@ -44,11 +48,7 @@ export const UploadService = {
 				throw new Error('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
 			}
 
-			if (error.response?.status === 404) {
-				throw new Error('Endpoint không tồn tại. Vui lòng kiểm tra lại URL.');
-			}
-
-			throw new Error(error.response?.data?.message || 'Không thể tải lên ảnh. Vui lòng thử lại.');
+			throw error;
 		}
 	},
 };
