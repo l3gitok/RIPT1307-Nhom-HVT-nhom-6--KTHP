@@ -25,6 +25,16 @@ interface ReviewInteraction {
 	dislikes: Record<string, boolean>;
 }
 
+// Interface cho dữ liệu người dùng
+interface UserData {
+	_id: string;
+	email: string;
+	profile: {
+		username: string;
+	};
+	[key: string]: any;
+}
+
 export default function HomeReviews() {
 	const [reviews, setReviews] = useState<Review[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -32,26 +42,89 @@ export default function HomeReviews() {
 		likes: {},
 		dislikes: {},
 	});
+	const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+	// Lưu trữ tất cả tương tác từ tất cả người dùng
+	const [allUserInteractions, setAllUserInteractions] = useState<{
+		[userId: string]: ReviewInteraction;
+	}>({});
 
-	// Tải thông tin like/dislike từ localStorage
+	// Lấy thông tin người dùng hiện tại
 	useEffect(() => {
-		const savedInteractions = localStorage.getItem('reviewInteractions');
+		const userString = localStorage.getItem('user');
+		if (userString) {
+			try {
+				const user = JSON.parse(userString);
+				setCurrentUser(user);
+			} catch (error) {
+				console.error('Lỗi khi phân tích dữ liệu người dùng:', error);
+			}
+		}
+	}, []);
+
+	// Tải tất cả tương tác của tất cả người dùng từ localStorage
+	useEffect(() => {
+		// Lấy danh sách tất cả các key trong localStorage
+		const allInteractions: { [userId: string]: ReviewInteraction } = {};
+
+		// Quét toàn bộ localStorage để tìm các key bắt đầu bằng 'reviewInteractions_'
+		for (let i = 0; i < localStorage.length; i++) {
+			const key = localStorage.key(i);
+			if (key && key.startsWith('reviewInteractions_')) {
+				try {
+					const userId = key.replace('reviewInteractions_', '');
+					const data = localStorage.getItem(key);
+					if (data) {
+						allInteractions[userId] = JSON.parse(data) as ReviewInteraction;
+					}
+				} catch (error) {
+					console.error('Lỗi khi phân tích dữ liệu:', error);
+				}
+			}
+		}
+
+		setAllUserInteractions(allInteractions);
+	}, []);
+
+	// Tải thông tin like/dislike của người dùng hiện tại từ localStorage
+	useEffect(() => {
+		if (!currentUser?._id) return;
+
+		const userInteractionKey = `reviewInteractions_${currentUser._id}`;
+		const savedInteractions = localStorage.getItem(userInteractionKey);
+
 		if (savedInteractions) {
 			try {
 				const parsed = JSON.parse(savedInteractions) as ReviewInteraction;
 				setInteractions(parsed);
+
+				// Cập nhật tương tác của người dùng hiện tại vào tất cả tương tác
+				setAllUserInteractions((prev) => ({
+					...prev,
+					[currentUser._id]: parsed,
+				}));
 			} catch (error) {
 				console.error('Lỗi khi phân tích dữ liệu tương tác:', error);
 				// Khởi tạo mới nếu có lỗi
 				setInteractions({ likes: {}, dislikes: {} });
 			}
+		} else {
+			// Reset tương tác khi đổi tài khoản
+			setInteractions({ likes: {}, dislikes: {} });
 		}
-	}, []);
-
+	}, [currentUser]);
 	// Lưu thông tin like/dislike vào localStorage khi thay đổi
 	useEffect(() => {
-		localStorage.setItem('reviewInteractions', JSON.stringify(interactions));
-	}, [interactions]);
+		if (!currentUser?._id) return;
+
+		const userInteractionKey = `reviewInteractions_${currentUser._id}`;
+		localStorage.setItem(userInteractionKey, JSON.stringify(interactions));
+
+		// Cập nhật vào tổng thể tương tác
+		setAllUserInteractions((prev) => ({
+			...prev,
+			[currentUser._id]: interactions,
+		}));
+	}, [interactions, currentUser]);
 
 	useEffect(() => {
 		const loadApprovedReviews = async () => {
@@ -72,6 +145,12 @@ export default function HomeReviews() {
 
 	// Xử lý khi nhấn nút Like
 	const handleLike = (reviewId: string) => {
+		// Kiểm tra đăng nhập
+		if (!currentUser?._id) {
+			message.warning('Vui lòng đăng nhập để thích bài viết');
+			return;
+		}
+
 		setInteractions((prev) => {
 			const newInteractions = { ...prev };
 
@@ -95,6 +174,12 @@ export default function HomeReviews() {
 
 	// Xử lý khi nhấn nút Dislike
 	const handleDislike = (reviewId: string) => {
+		// Kiểm tra đăng nhập
+		if (!currentUser?._id) {
+			message.warning('Vui lòng đăng nhập để không thích bài viết');
+			return;
+		}
+
 		setInteractions((prev) => {
 			const newInteractions = { ...prev };
 
@@ -114,31 +199,32 @@ export default function HomeReviews() {
 
 			return newInteractions;
 		});
-	};
-	// Đếm số lượng like cho một review
+	}; // Đếm số lượng like cho một review từ tất cả người dùng
 	const getLikeCount = (reviewId: string) => {
-		// Mặc định mỗi review có 0 like
-		let baseCount = 0;
+		let totalCount = 0;
 
-		// Nếu người dùng đã like, tăng thêm 1
-		if (interactions.likes[reviewId]) {
-			baseCount += 1;
-		}
+		// Đếm tổng số like từ tất cả người dùng
+		Object.values(allUserInteractions).forEach((userInteraction) => {
+			if (userInteraction.likes && userInteraction.likes[reviewId]) {
+				totalCount += 1;
+			}
+		});
 
-		return baseCount;
+		return totalCount;
 	};
 
-	// Đếm số lượng dislike cho một review
+	// Đếm số lượng dislike cho một review từ tất cả người dùng
 	const getDislikeCount = (reviewId: string) => {
-		// Mặc định mỗi review có 0 dislike
-		let baseCount = 0;
+		let totalCount = 0;
 
-		// Nếu người dùng đã dislike, tăng thêm 1
-		if (interactions.dislikes[reviewId]) {
-			baseCount += 1;
-		}
+		// Đếm tổng số dislike từ tất cả người dùng
+		Object.values(allUserInteractions).forEach((userInteraction) => {
+			if (userInteraction.dislikes && userInteraction.dislikes[reviewId]) {
+				totalCount += 1;
+			}
+		});
 
-		return baseCount;
+		return totalCount;
 	};
 
 	if (loading) {
