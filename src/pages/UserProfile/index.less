@@ -1,0 +1,627 @@
+// Main container
+.user-profile {
+  min-height: 100vh;
+  background: #fafafa;
+  padding: 24px 0;
+
+  &__container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+}
+
+// Loading state
+.user-profile-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+}
+
+// Not found state
+.user-profile-not-found {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  padding: 40px;
+
+  &__empty {
+    margin-bottom: 24px;
+  }
+
+  &__button {
+    border-radius: 8px;
+  }
+}
+
+// Profile header card
+.profile-header {
+  margin-bottom: 24px;
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+
+  .ant-card-body {
+    padding: 0;
+  }
+
+  &__cover {
+    height: 200px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 24px;
+
+    &--default {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    &--custom {
+      background-size: cover;
+      background-position: center;
+    }
+  }
+
+  &__avatar {
+    border: 4px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &__info {
+    padding: 24px;
+  }
+
+  &__name-section {
+    margin-bottom: 20px;
+
+    .ant-typography {
+      margin-bottom: 0;
+      color: #262626;
+    }
+  }
+
+  &__name-row {
+    margin-bottom: 8px;
+  }
+
+  &__meta-info {
+    margin-bottom: 12px;
+
+    .ant-typography {
+      font-size: 14px;
+    }
+  }
+
+  &__verified-icon {
+    color: #1890ff;
+    font-size: 18px;
+  }
+
+  &__role-tag {
+    border-radius: 12px;
+    font-size: 12px;
+  }
+
+  &__banned-tag {
+    border-radius: 12px;
+    font-size: 12px;
+  }
+}
+
+// Stats section
+.profile-stats {
+  &__item {
+    text-align: center;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    &--clickable {
+      cursor: pointer;
+    }
+
+    &--non-clickable {
+      cursor: default;
+    }
+  }
+
+  &__number {
+    margin-bottom: 4px;
+    color: #262626;
+    font-size: 18px;
+  }
+
+  &__label {
+    font-size: 13px;
+  }
+}
+
+// Action buttons
+.profile-actions {
+  align-items: flex-end;
+
+  &__button {
+    border-radius: 8px;
+    font-weight: 600;
+    min-width: 120px;
+    height: 40px;
+  }
+
+  }
+
+.profile-content {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  .ant-card-body {
+    padding: 24px 24px 0;
+  }
+
+  &__tab-content {
+    padding: 0 8px;
+  }
+
+  &__header {
+    margin-bottom: 0;
+
+    .profile-content__title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      color: #262626;
+
+      .content-badge {
+        .ant-badge-count {
+          background: linear-gradient(135deg, #faad14 0%, #fa8c16 100%);
+          color: #fff;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
+        }
+      }
+    }
+
+    .profile-content__subtitle {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+  }
+}
+
+// Content items (posts, reviews, comments)
+.content-item {
+  padding: 16px 0;
+  border: none;
+
+  &__card {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #d9d9d9;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .ant-card-body {
+      padding: 20px;
+    }
+  }
+
+  &__title {
+    margin-bottom: 8px;
+    color: #262626;
+  }
+
+  &__content {
+    color: #595959;
+    margin-bottom: 12px;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+
+    .content-item__time-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+// Review specific styles
+.review-item {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+
+    .review-item__game-title {
+      margin-bottom: 8px;
+      color: #262626;
+      font-weight: 600;
+    }
+
+    .review-item__rating {
+      font-size: 16px;
+
+      .ant-rate-star {
+        margin-right: 2px;
+      }
+    }
+  }
+
+  &__badge {
+    flex-shrink: 0;
+
+    &--excellent .ant-badge-count {
+      background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+    }
+
+    &--good .ant-badge-count {
+      background: linear-gradient(135deg, #faad14 0%, #fa8c16 100%);
+    }
+
+    &--poor .ant-badge-count {
+      background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+    }
+  }
+
+  &__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  &__helpful {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+  }
+}
+
+// Ban info card
+.ban-info {
+  margin-top: 24px;
+  border-radius: 16px;
+  border: 1px solid #ffccc7;
+  box-shadow: 0 4px 20px rgba(255, 77, 79, 0.1);
+
+  .ant-card-body {
+    background-color: #fff2f0;
+  }
+
+  &__title {
+    color: #ff4d4f;
+    font-weight: 600;
+  }
+
+  &__reason {
+    margin-bottom: 12px;
+  }
+
+  &__description {
+    margin-top: 4px;
+  }
+}
+
+// Modal styles
+.followers-modal,
+.following-modal {
+  .ant-modal {
+    top: 50px;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__list {
+    max-height: 450px;
+    overflow: auto;
+  }
+}
+
+// User item in modal
+.user-item {
+  padding: 16px 0;
+  border: none;
+
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 16px;
+  }
+
+  &__profile {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    cursor: pointer;
+    gap: 12px;
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  &__name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  &__name {
+    font-size: 15px;
+    color: #262626;
+  }
+
+  &__email {
+    font-size: 13px;
+  }
+
+  &__verified-icon {
+    color: #1890ff;
+    font-size: 14px;
+  }
+
+  &__follow-button {
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 80px;
+  }
+}
+
+// Tab badges
+.tab-badge {
+  &--default {
+    background-color: #f5f5f5;
+    color: #8c8c8c;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .user-profile {
+    padding: 16px 0;
+
+    &__container {
+      padding: 0 16px;
+    }
+  }
+
+  .profile-header {
+    margin-bottom: 16px;
+
+    &__cover {
+      height: 150px;
+      padding: 16px;
+    }
+
+    &__info {
+      padding: 16px;
+    }
+
+    &__name-section {
+      margin-bottom: 16px;
+    }
+  }
+
+  .profile-stats {
+    &__item {
+      padding: 4px;
+    }
+
+    &__number {
+      font-size: 16px;
+    }
+
+    &__label {
+      font-size: 12px;
+    }
+  }
+
+  .profile-actions {
+    &__button {
+      min-width: 100px;
+      height: 36px;
+      font-size: 14px;
+    }
+  }
+
+  .profile-content {
+    .ant-card-body {
+      padding: 16px 16px 0;
+    }
+
+    &__tab-content {
+      padding: 0 4px;
+    }
+
+    &__header {
+      margin-bottom: 0;
+
+      .profile-content__title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        color: #262626;
+
+        .content-badge {
+          .ant-badge-count {
+            background: linear-gradient(135deg, #faad14 0%, #fa8c16 100%);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
+          }
+        }
+      }
+
+      .profile-content__subtitle {
+        font-size: 14px;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  .content-item {
+    &__card {
+      .ant-card-body {
+        padding: 16px;
+      }
+    }
+  }
+
+  .user-item {
+    &__container {
+      gap: 12px;
+    }
+
+    &__profile {
+      gap: 8px;
+    }
+
+    &__follow-button {
+      min-width: 70px;
+      font-size: 11px;
+    }
+  }
+
+  .followers-modal,
+  .following-modal {
+    .ant-modal {
+      top: 20px;
+      margin: 0 16px;
+      max-width: calc(100vw - 32px);
+    }
+
+    &__list {
+      max-height: 60vh;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-header {
+    &__cover {
+      height: 120px;
+      padding: 12px;
+    }
+
+    &__avatar {
+      width: 80px;
+      height: 80px;
+    }
+
+    &__info {
+      padding: 12px;
+    }
+  }
+
+  .profile-stats {
+    &__item {
+      padding: 2px;
+    }
+  }
+
+  .profile-actions {
+    &__button {
+      min-width: 80px;
+      height: 32px;
+      font-size: 12px;
+    }
+  }
+}
+
+// Utility classes
+.text-center {
+  text-align: center;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Animation classes
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Hover effects
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}

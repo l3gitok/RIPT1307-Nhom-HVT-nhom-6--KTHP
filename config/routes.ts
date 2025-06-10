@@ -35,8 +35,10 @@ export default [
 				path: '/user/reset-password',
 				component: './user/Login/ResetPassword',
 			},
+			
 		],
 	},
+	
 
 	///////////////////////////////////
 	// DEFAULT MENU
@@ -76,6 +78,13 @@ export default [
 		component: './ReportManagement',
 		icon: 'WarningOutlined',
 	},
+	 // Thêm route cho public user profile (không cần layout admin)
+    {
+        path: '/profile/:userId',
+        name: 'user-profile',
+        component: './UserProfile',
+        layout: false,
+    },
 
 	{
 		path: '/notification',

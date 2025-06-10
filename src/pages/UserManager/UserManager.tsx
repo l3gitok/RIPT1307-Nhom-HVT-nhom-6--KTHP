@@ -3,21 +3,29 @@ import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
 import { useModel } from 'umi';
 import dayjs from 'dayjs';
+import axios from 'axios'; // Import axios for consistency
+import type { User } from '../../services/UserServices'; // Import User type
 import BanUserForm, { BanUserFormValues } from './BanUserForm';
 
+// API Endpoints
+const API_USER_BANS_BASE_URL = 'https://gamehubapi-test.onrender.com/api/user-bans';
+
 const UserManager = () => {
-	const { data, getDataUser, setRow, isEdit, setVisible, setIsEdit, visible } = useModel('user');
+	// Removed unused states: setRow, isEdit, setVisible, setIsEdit, visible
+	// Assuming these are for a generic edit modal not used here.
+	// The `loading` from user model is for getDataUser, which is fine.
+	const { data, getDataUser, loading: tableLoading } = useModel('user');
 	const [searchUsername, setSearchUsername] = useState('');
 	const [searchEmail, setSearchEmail] = useState('');
 	const [banModalVisible, setBanModalVisible] = useState(false);
 	const [banLoading, setBanLoading] = useState(false);
-	const [currentRecord, setCurrentRecord] = useState<any>(null);
+	const [currentRecord, setCurrentRecord] = useState<User | null>(null);
 
 	useEffect(() => {
 		getDataUser();
 	}, []);
 
-	const filteredData = data?.filter((item: any) => {
+	const filteredData = data?.filter((item: User) => {
 		const matchUsername = searchUsername
 			? (item.profile?.username || '').toLowerCase().includes(searchUsername.toLowerCase())
 			: true;
@@ -25,7 +33,7 @@ const UserManager = () => {
 		return matchUsername && matchEmail;
 	});
 
-	const handleBanClick = (record: any) => {
+	const handleBanClick = (record: User) => {
 		setCurrentRecord(record);
 		setBanModalVisible(true);
 	};
@@ -39,63 +47,63 @@ const UserManager = () => {
 			return;
 		}
 		try {
-			const response = await fetch(`https://gamehubapi-test.onrender.com/api/user-bans/${currentRecord._id}/ban`, {
-				method: 'POST',
+			// Use axios for consistency
+			const response = await axios.post(
+				`${API_USER_BANS_BASE_URL}/${currentRecord?._id}/ban`,
+				values,
+				{
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`,
 				},
-				body: JSON.stringify(values),
 			});
 
-			if (!response.ok) {
-				const errorData = await response.json();
-				message.error(errorData.message || 'Cập nhật trạng thái thất bại!');
-				setBanLoading(false);
-				return;
+			// Assuming API returns data in response.data
+			if (response.data.success) { // Adjust based on your API response structure
+				message.success('Đã khóa user!');
+				setBanModalVisible(false);
+				getDataUser(); // Refresh data
+			} else {
+				message.error(response.data.message || 'Cập nhật trạng thái thất bại!');
 			}
-
-			message.success('Đã khóa user!');
-			setBanModalVisible(false);
-			getDataUser();
-		} catch (error) {
-			message.error('Có lỗi xảy ra!');
-			console.error('Error:', error);
+		} catch (error: any) {
+			message.error(error.response?.data?.message || 'Có lỗi xảy ra khi khóa user!');
+			console.error('Error banning user:', error);
+		} finally {
+				setBanLoading(false);
 		}
-		setBanLoading(false);
 	};
 
-	const handleUnban = async (record: any) => {
+	const handleUnban = async (record: User) => {
 		const token = localStorage.getItem('accessToken');
 		if (!token) {
 			message.error('Bạn chưa đăng nhập!');
 			return;
 		}
 		try {
-			const response = await fetch(`https://gamehubapi-test.onrender.com/api/user-bans/${record._id}/unban`, {
-				method: 'POST',
+			const response = await axios.post(
+				`${API_USER_BANS_BASE_URL}/${record._id}/unban`,
+				{}, // Empty body for unban
+				{
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`,
 				},
-				body: JSON.stringify({}),
 			});
 
-			if (!response.ok) {
-				const errorData = await response.json();
-				message.error(errorData.message || 'Cập nhật trạng thái thất bại!');
-				return;
+			if (response.data.success) { // Adjust based on your API response structure
+				message.success('Đã mở khóa user!');
+				getDataUser(); // Refresh data
+			} else {
+				message.error(response.data.message || 'Cập nhật trạng thái thất bại!');
 			}
-
-			message.success('Đã mở khóa user!');
-			getDataUser();
-		} catch (error) {
-			message.error('Có lỗi xảy ra!');
-			console.error('Error:', error);
+		} catch (error: any) {
+			message.error(error.response?.data?.message || 'Có lỗi xảy ra khi mở khóa user!');
+			console.error('Error unbanning user:', error);
 		}
 	};
 
-	const columns: ColumnsType<any> = [
+	const columns: ColumnsType<User> = [
 		{
 			title: 'ID',
 			dataIndex: '_id',
@@ -149,7 +157,7 @@ const UserManager = () => {
 			title: 'Action',
 			key: 'action',
 			width: 200,
-			render: (record) => {
+			render: (_text, record: User) => { // Added _text for unused first param
 				const isBanned = record.status === 'banned';
 				return isBanned ? (
 					<Button danger type='primary' onClick={() => handleUnban(record)}>
@@ -187,7 +195,7 @@ const UserManager = () => {
 				</Col>
 			</Row>
 
-			<Table rowKey='_id' dataSource={filteredData} columns={columns} />
+			<Table rowKey='_id' dataSource={filteredData} columns={columns} loading={tableLoading} />
 
 			<Modal
 				destroyOnClose

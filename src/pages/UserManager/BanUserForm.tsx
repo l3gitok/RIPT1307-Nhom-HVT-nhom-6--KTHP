@@ -1,4 +1,4 @@
-import { Form, Input, InputNumber, Select } from 'antd';
+import { Form, Input, InputNumber, Select, Button } from 'antd';
 
 export interface BanUserFormValues {
 	reason: string;
@@ -35,15 +35,15 @@ const BanUserForm: React.FC<BanUserFormProps> = ({ onFinish, loading }) => {
 			>
 				<InputNumber min={1} max={365} style={{ width: '100%' }} />
 			</Form.Item>
-			<Form.Item label='Kiểu ban' name='ban_type'>
-				<Select disabled>
+			<Form.Item label='Kiểu ban' name='ban_type' rules={[{ required: true, message: 'Vui lòng chọn kiểu ban!' }]}>
+				<Select>
 					<Select.Option value='direct'>Direct</Select.Option>
 				</Select>
 			</Form.Item>
 			<Form.Item>
-				<button type='submit' className='ant-btn ant-btn-primary' disabled={loading}>
+				<Button type='primary' htmlType='submit' loading={loading}>
 					Ban User
-				</button>
+				</Button>
 			</Form.Item>
 		</Form>
 	);

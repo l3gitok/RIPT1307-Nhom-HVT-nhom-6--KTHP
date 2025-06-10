@@ -1,12 +1,11 @@
-// Interface cho Profile
+// ===== EXISTING INTERFACES (giữ nguyên) =====
 export interface Profile {
     username: string;
     avatar_url?: string;
     cover_url?: string;
-  }
-  
-  // Interface cho BanInfo
-  export interface BanInfo {
+}
+
+export interface BanInfo {
     reason: string;
     description: string;
     banned_by: string;
@@ -14,39 +13,35 @@ export interface Profile {
     ban_expires_at: string;
     ban_type: 'direct' | 'report';
     report_id?: string;
-  }
-  
-  // Interface cho Post
-  export interface Post {
+}
+
+export interface Post {
     _id: string;
     title: string;
     content: string;
     created_at: string;
     updated_at: string;
-  }
-  
-  // Interface cho Review
-  export interface Review {
+}
+
+export interface Review {
     _id: string;
     game_name: string;
     rating: number;
     content: string;
     created_at: string;
     updated_at: string;
-  }
-  
-  // Interface cho Comment
-  export interface Comment {
+}
+
+export interface Comment {
     _id: string;
     content: string;
     target_type: string;
     target_id: string;
     created_at: string;
     updated_at: string;
-  }
-  
-  // Interface cho User
-  export interface User {
+}
+
+export interface User {
     _id: string;
     email: string;
     role: string;
@@ -62,30 +57,105 @@ export interface Profile {
     posts?: Post[];
     reviews?: Review[];
     comments?: Comment[];
-  }
-  
-  // Interface cho UserResponse
-  export interface UserResponse {
+}
+
+export interface UserResponse {
     success: boolean;
     user?: User;
     users?: User[];
     total?: number;
     message?: string;
-  }
-  
-  // Interface cho BanUserFormValues
-  export interface BanUserFormValues {
+}
+
+export interface BanUserFormValues {
     reason: string;
     description: string;
     ban_expires_at: string;
     ban_type: 'direct' | 'report';
-  }
-  
-  // Interface cho UserQueryParams
-  export interface UserQueryParams {
+}
+
+export interface UserQueryParams {
     page?: number;
     limit?: number;
     sort?: string;
     order?: 'ascend' | 'descend';
     search?: string;
-  } 
+}
+
+// ===== SIMPLIFIED FOLLOW INTERFACES =====
+
+// Follow user trong danh sách followers/following
+export interface FollowUser {
+    _id: string;
+    email: string;
+    profile: Profile;
+    is_verified: boolean;
+    role: string;
+    status: string;
+    created_at: string;
+    followers?: string[];
+    following?: string[];
+}
+
+// Response cho follow/unfollow
+export interface FollowResponse {
+    success: boolean;
+    message: string;
+    data?: any;
+}
+
+// Response cho danh sách followers/following
+export interface FollowListResponse {
+    success: boolean;
+    data: {
+        following?: FollowUser[];
+        followers?: FollowUser[];
+    };
+}
+
+// Response cho follow status
+export interface FollowStatusResponse {
+    success: boolean;
+    data: {
+        isFollowing: boolean;
+        followedAt?: string;
+    };
+}
+
+// Response cho follow counts
+export interface FollowCountsResponse {
+    success: boolean;
+    data: {
+        followers: number;
+        following: number;
+    };
+}
+
+// ===== EDIT PROFILE INTERFACES =====
+
+export interface EditProfileFormValues {
+  username?: string;
+  avatar_url?: string;
+  cover_url?: string;
+}
+
+export interface EditProfileResponse {
+  success: boolean;
+  message: string;
+  user?: User;
+}
+
+// ✅ Cloudinary upload response interface
+export interface CloudinaryUploadResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    url: string;
+    public_id: string;
+  };
+}
+
+export interface CloudinaryDeleteResponse {
+  success: boolean;
+  message: string;
+}
