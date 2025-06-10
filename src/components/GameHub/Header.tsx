@@ -2,6 +2,7 @@ import { Button, Col, Image, Row, Input, Dropdown, Menu, Layout } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { history } from 'umi';
+import './Header.less';
 
 const { Header } = Layout;
 
@@ -37,10 +38,14 @@ const GameHubHeader: React.FC<GameHubHeaderProps> = ({
 	const adminMenu = (
 		<Menu>
 			<Menu.Item key='profile'>
-				<a href='/profile'>Thông tin người dùng</a>
+				<a href='/profile' className='not-underline'>
+					Thông tin người dùng
+				</a>
 			</Menu.Item>
 			<Menu.Item key='admin'>
-				<a href='/admin'>Quản lí hệ thống</a>
+				<a href='/admin' className='not-underline'>
+					Quản lí hệ thống
+				</a>
 			</Menu.Item>
 			<Menu.Item key='logout' onClick={handleLogout}>
 				Đăng xuất
@@ -51,7 +56,9 @@ const GameHubHeader: React.FC<GameHubHeaderProps> = ({
 	const userMenu = (
 		<Menu>
 			<Menu.Item key='profile'>
-				<a href='/profile'>Thông tin người dùng</a>
+				<a href='/profile' className='not-underline'>
+					Thông tin người dùng
+				</a>
 			</Menu.Item>
 			<Menu.Item key='logout' onClick={handleLogout}>
 				Đăng xuất
@@ -73,6 +80,7 @@ const GameHubHeader: React.FC<GameHubHeaderProps> = ({
 	return (
 		<>
 			<Header
+				className='gamehub-header'
 				style={{
 					background: '#120C0C',
 					padding: 0,
@@ -85,9 +93,11 @@ const GameHubHeader: React.FC<GameHubHeaderProps> = ({
 				}}
 			>
 				<Row align='middle' justify='space-between' style={{ height: '100%' }}>
+					{' '}
 					<Col style={{ marginLeft: '13px' }}>
 						<a
 							href='/dashboard'
+							className='not-underline'
 							style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', outline: 'none' }}
 							onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'none')}
 							onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}

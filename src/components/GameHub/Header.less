@@ -1,0 +1,18 @@
+// GameHub Header specific styles
+.gamehub-header {
+	// Remove red underline from all links in the header
+	a {
+		&::after {
+			display: none !important;
+		}
+	}
+}
+
+// Additional override for Ant Design dropdown menus in GameHub
+.ant-dropdown-menu {
+	a {
+		&::after {
+			display: none !important;
+		}
+	}
+}

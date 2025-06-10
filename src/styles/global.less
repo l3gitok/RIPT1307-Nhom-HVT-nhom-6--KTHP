@@ -35,9 +35,16 @@ a {
 		opacity: 1;
 		transition: 0.3s;
 	}
-
 	&.not-underline::after {
 		display: none;
+	}
+}
+
+// GameHub Header specific styles - remove red underline from all links
+.ant-layout-header a,
+.ant-dropdown-menu a {
+	&::after {
+		display: none !important;
 	}
 }
 
@@ -221,10 +228,10 @@ canvas {
 		height: 100vh;
 		overflow: hidden;
 
-		>.ant-modal-content {
+		> .ant-modal-content {
 			border-radius: 0;
 
-			>.ant-modal-body {
+			> .ant-modal-body {
 				height: 100vh;
 			}
 		}
@@ -235,18 +242,18 @@ canvas {
 	font-weight: 600;
 }
 
-.ant-tabs-card.ant-tabs-top>.ant-tabs-nav .ant-tabs-nav-list,
-.ant-tabs-card.ant-tabs-top>div>.ant-tabs-nav .ant-tabs-nav-list {
+.ant-tabs-card.ant-tabs-top > .ant-tabs-nav .ant-tabs-nav-list,
+.ant-tabs-card.ant-tabs-top > div > .ant-tabs-nav .ant-tabs-nav-list {
 	display: block;
 }
 
-.ant-tabs-card.ant-tabs-top>.ant-tabs-nav .ant-tabs-nav-wrap,
-.ant-tabs-card.ant-tabs-top>div>.ant-tabs-nav .ant-tabs-nav-wrap {
+.ant-tabs-card.ant-tabs-top > .ant-tabs-nav .ant-tabs-nav-wrap,
+.ant-tabs-card.ant-tabs-top > div > .ant-tabs-nav .ant-tabs-nav-wrap {
 	white-space: inherit;
 }
 
-.ant-tabs-card.ant-tabs-top>.ant-tabs-nav .ant-tabs-tab,
-.ant-tabs-card.ant-tabs-top>div>.ant-tabs-nav .ant-tabs-tab {
+.ant-tabs-card.ant-tabs-top > .ant-tabs-nav .ant-tabs-tab,
+.ant-tabs-card.ant-tabs-top > div > .ant-tabs-nav .ant-tabs-tab {
 	margin-bottom: 4px;
 	font-weight: 600;
 	border-radius: 4px 4px 0 0;
@@ -264,7 +271,7 @@ canvas {
 	padding: 13px 20px !important;
 }
 
-.ant-form-item-label>label {
+.ant-form-item-label > label {
 	height: auto;
 	margin: 4px 0 !important;
 }
@@ -329,13 +336,13 @@ canvas {
 .ant-modal .ant-card-body,
 .ant-drawer .ant-card-body {
 	@media (min-width: @screen-xl) {
-		.ant-tabs-left>.ant-tabs-nav {
-			.ant-tabs-tab+.ant-tabs-tab {
+		.ant-tabs-left > .ant-tabs-nav {
+			.ant-tabs-tab + .ant-tabs-tab {
 				margin: 10px 0 0 0;
 			}
 		}
 
-		.ant-tabs-left>.ant-tabs-content-holder>.ant-tabs-content>.ant-tabs-tabpane {
+		.ant-tabs-left > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane {
 			padding-left: 18px;
 		}
 	}
@@ -386,7 +393,6 @@ canvas {
 		align-items: center;
 		height: 100%;
 		padding: 8px 12px 8px 4px;
-
 		transition: 0.3s;
 
 		&:hover {
@@ -479,18 +485,16 @@ canvas {
 		}
 
 		button {
-			padding: 4px 15px;
-			border-radius: @border-radius;
-			font-size: 14px;
 			height: 32px;
-
-			box-shadow: 0 2px 0 rgba(0, 0, 0, .015);
-			cursor: pointer;
-			transition: all .3s cubic-bezier(.645, .045, .355, 1);
-			color: rgba(0, 0, 0, .85);
-			border: 1px solid #d9d9d9;
-
+			padding: 4px 15px;
+			color: rgba(0, 0, 0, 0.85);
+			font-size: 14px;
 			line-height: 1.5715;
+			border: 1px solid #d9d9d9;
+			border-radius: @border-radius;
+			box-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
+			cursor: pointer;
+			transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
 		}
 	}
 }
@@ -508,14 +512,12 @@ canvas {
 		width: 100%;
 		overflow-x: auto;
 
-		&-thead>tr,
-		&-tbody>tr {
-
-			>th,
-			>td {
-
+		&-thead > tr,
+		&-tbody > tr {
+			> th,
+			> td {
 				// white-space: pre;
-				>span {
+				> span {
 					display: block;
 				}
 			}
@@ -523,14 +525,14 @@ canvas {
 	}
 }
 
-.ant-card-small>.ant-card-head>.ant-card-head-wrapper>.ant-card-extra {
+.ant-card-small > .ant-card-head > .ant-card-head-wrapper > .ant-card-extra {
 	padding: 3px 0 !important;
 }
 
 .card-highlight {
 	.ant-card-head {
-		background-color: var(--primary-color);
 		color: white;
+		background-color: var(--primary-color);
 
 		.ant-btn-link,
 		a {
@@ -541,7 +543,7 @@ canvas {
 
 .ant-collapse-item-active {
 	.ant-collapse-header-text {
-		font-weight: 600;
 		color: var(--primary-color);
+		font-weight: 600;
 	}
 }
