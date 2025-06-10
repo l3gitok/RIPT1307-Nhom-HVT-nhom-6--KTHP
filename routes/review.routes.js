@@ -27,5 +27,5 @@ router.post('/:id/reply', reviewValidation.validateMongoId, reviewValidation.val
 
 // Admin only routes
 router.patch('/:id/status', reviewValidation.validateMongoId, reviewValidation.validateUpdateStatus, isAdmin, reviewController.updateReviewStatus);
-
+// Admin can delete any review
 module.exports = router;

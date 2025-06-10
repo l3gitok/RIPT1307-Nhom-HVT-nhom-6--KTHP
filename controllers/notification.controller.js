@@ -1,16 +1,18 @@
 const notificationService = require('../services/notification.service');
 const { NOTIFICATION_TYPES } = require('../models/notification.model');
 
-// Lấy danh sách thông báo của user
+// ✅ Lấy danh sách thông báo của user
 exports.getNotifications = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
+    const userId = req.user._id || req.user.id;
+    
     const notifications = await notificationService.getPaginatedNotifications(
-      req.user._id,
+      userId,
       parseInt(page),
       parseInt(limit)
     );
-    const unreadCount = await notificationService.getUnreadCount(req.user._id);
+    const unreadCount = await notificationService.getUnreadCount(userId);
     
     res.json({
       success: true,
@@ -22,6 +24,7 @@ exports.getNotifications = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Error getting notifications:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi lấy danh sách thông báo',
@@ -30,7 +33,7 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
-// Đánh dấu một thông báo đã đọc
+// ✅ Đánh dấu một thông báo đã đọc
 exports.markAsRead = async (req, res) => {
   try {
     const { notificationId } = req.params;
@@ -48,6 +51,7 @@ exports.markAsRead = async (req, res) => {
       data: notification
     });
   } catch (error) {
+    console.error('Error marking notification as read:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi đánh dấu thông báo đã đọc',
@@ -56,15 +60,18 @@ exports.markAsRead = async (req, res) => {
   }
 };
 
-// Đánh dấu tất cả thông báo đã đọc
+// ✅ Đánh dấu tất cả thông báo đã đọc
 exports.markAllAsRead = async (req, res) => {
   try {
-    await notificationService.markAllAsRead(req.user._id);
+    const userId = req.user._id || req.user.id;
+    await notificationService.markAllAsRead(userId);
+    
     res.json({
       success: true,
       message: 'Đã đánh dấu tất cả thông báo đã đọc'
     });
   } catch (error) {
+    console.error('Error marking all notifications as read:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi đánh dấu tất cả thông báo đã đọc',
@@ -73,7 +80,7 @@ exports.markAllAsRead = async (req, res) => {
   }
 };
 
-// Xóa một thông báo
+// ✅ Xóa một thông báo
 exports.deleteNotification = async (req, res) => {
   try {
     const { notificationId } = req.params;
@@ -91,6 +98,7 @@ exports.deleteNotification = async (req, res) => {
       message: 'Đã xóa thông báo thành công'
     });
   } catch (error) {
+    console.error('Error deleting notification:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi xóa thông báo',
@@ -99,15 +107,18 @@ exports.deleteNotification = async (req, res) => {
   }
 };
 
-// Xóa tất cả thông báo
+// ✅ Xóa tất cả thông báo
 exports.deleteAllNotifications = async (req, res) => {
   try {
-    await notificationService.deleteAllNotificationsForUser(req.user._id);
+    const userId = req.user._id || req.user.id;
+    await notificationService.deleteAllNotificationsForUser(userId);
+    
     res.json({
       success: true,
       message: 'Đã xóa tất cả thông báo thành công'
     });
   } catch (error) {
+    console.error('Error deleting all notifications:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi xóa tất cả thông báo',
@@ -116,15 +127,18 @@ exports.deleteAllNotifications = async (req, res) => {
   }
 };
 
-// Lấy số lượng thông báo chưa đọc
+// ✅ Lấy số lượng thông báo chưa đọc
 exports.getUnreadCount = async (req, res) => {
   try {
-    const count = await notificationService.getUnreadCount(req.user._id);
+    const userId = req.user._id || req.user.id;
+    const count = await notificationService.getUnreadCount(userId);
+    
     res.json({
       success: true,
       data: { count }
     });
   } catch (error) {
+    console.error('Error getting unread count:', error);
     res.status(500).json({
       success: false,
       message: 'Lỗi khi lấy số lượng thông báo chưa đọc',
