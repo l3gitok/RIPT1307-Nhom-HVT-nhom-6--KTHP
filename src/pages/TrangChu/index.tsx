@@ -30,15 +30,6 @@ const NAV_ITEMS = [
 	{ label: 'Trang chủ', key: 1 },
 	{ label: 'Bảng Xếp Hạng', key: 2 },
 ];
-
-const COMMENTS = [
-	'Mẹ nó thật sự béo nghahahahahaahaah',
-	'Mẹ nó thật sự béo nghahahahahaahaah',
-	'Mẹ nó thật sự béo nghahahahahaahaah',
-	'Mẹ nó thật sự béo nghahahahahaahaah',
-	'Mẹ nó thật sự béo nghahahahahaahaah',
-];
-
 const Desktop = (): JSX.Element => {
 	const [searchText, setSearchText] = useState('');
 	const [activeNav, setActiveNav] = useState(1);
@@ -115,14 +106,6 @@ const Desktop = (): JSX.Element => {
 				<div style={{ maxWidth: '600px', margin: '0 auto' }}>
 					<HomeReviews />
 				</div>
-				{/* Modal bình luận */}
-				<CommentModal
-					visible={commentModalOpen}
-					onCancel={() => setCommentModalOpen(false)}
-					myComment={myComment}
-					setMyComment={setMyComment}
-					COMMENTS={COMMENTS}
-				/>
 			</Content>
 		</Layout>
 	);

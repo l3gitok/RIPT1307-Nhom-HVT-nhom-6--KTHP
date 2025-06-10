@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ReviewService } from '@/services';
 import type { Review } from '@/services/ReviewServices';
-import { Card, Rate, Avatar, Typography, Image, Space, Button, message } from 'antd';
+import { Card, Rate, Avatar, Typography, Image, Space, Button, message, Empty } from 'antd';
 import {
 	LikeOutlined,
 	DislikeOutlined,
@@ -36,7 +36,7 @@ interface UserData {
 	[key: string]: any;
 }
 
-export default function HomeReviews() {
+export default function FollowingPosts() {
 	const [reviews, setReviews] = useState<Review[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [interactions, setInteractions] = useState<ReviewInteraction>({
@@ -44,11 +44,9 @@ export default function HomeReviews() {
 		dislikes: {},
 	});
 	const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-	// Lưu trữ tất cả tương tác từ tất cả người dùng
 	const [allUserInteractions, setAllUserInteractions] = useState<Record<string, ReviewInteraction>>({}); // Sử dụng follow model
-	const { followUser, unfollowUser, isFollowing, refreshFollowData, clearFollowData, currentUserId } =
-		useModel('follow');
-	// Lấy thông tin người dùng hiện tại
+	const { followingList, getFollowingList, unfollowUser, refreshFollowData, clearFollowData, currentUserId } =
+		useModel('follow'); // Lấy thông tin người dùng hiện tại
 	useEffect(() => {
 		const userString = localStorage.getItem('user');
 		if (userString) {
@@ -69,12 +67,18 @@ export default function HomeReviews() {
 			clearFollowData();
 		}
 	}, [currentUser?._id, currentUserId, refreshFollowData, clearFollowData]);
+
+	// Tải lại danh sách following khi user thay đổi
+	useEffect(() => {
+		if (currentUser?._id) {
+			getFollowingList();
+		}
+	}, [currentUser?._id, getFollowingList]);
+
 	// Tải tất cả tương tác của tất cả người dùng từ localStorage
 	useEffect(() => {
-		// Lấy danh sách tất cả các key trong localStorage
 		const allInteractions: Record<string, ReviewInteraction> = {};
 
-		// Quét toàn bộ localStorage để tìm các key bắt đầu bằng 'reviewInteractions_'
 		for (let i = 0; i < localStorage.length; i++) {
 			const key = localStorage.key(i);
 			if (key && key.startsWith('reviewInteractions_')) {
@@ -105,18 +109,15 @@ export default function HomeReviews() {
 				const parsed = JSON.parse(savedInteractions) as ReviewInteraction;
 				setInteractions(parsed);
 
-				// Cập nhật tương tác của người dùng hiện tại vào tất cả tương tác
 				setAllUserInteractions((prev) => ({
 					...prev,
 					[currentUser._id]: parsed,
 				}));
 			} catch (error) {
 				console.error('Lỗi khi phân tích dữ liệu tương tác:', error);
-				// Khởi tạo mới nếu có lỗi
 				setInteractions({ likes: {}, dislikes: {} });
 			}
 		} else {
-			// Reset tương tác khi đổi tài khoản
 			setInteractions({ likes: {}, dislikes: {} });
 		}
 	}, [currentUser]);
@@ -127,33 +128,74 @@ export default function HomeReviews() {
 		const userInteractionKey = `reviewInteractions_${currentUser._id}`;
 		localStorage.setItem(userInteractionKey, JSON.stringify(interactions));
 
-		// Cập nhật vào tổng thể tương tác
 		setAllUserInteractions((prev) => ({
 			...prev,
 			[currentUser._id]: interactions,
 		}));
 	}, [interactions, currentUser]);
 
-	useEffect(() => {
-		const loadApprovedReviews = async () => {
-			setLoading(true);
-			try {
-				const response = await ReviewService.getReviews({ status: 'approved' });
-				if (response?.data && Array.isArray(response.data.reviews)) {
-					setReviews(response.data.reviews);
-				}
-			} catch (error) {
-				console.error('Error loading approved reviews:', error);
-			}
-			setLoading(false);
-		};
+	// Function to load reviews from followed users
+	const loadFollowingReviews = async () => {
+		setLoading(true);
+		try {
+			// Lấy tất cả reviews được approve
+			const response = await ReviewService.getReviews({ status: 'approved' });
 
-		loadApprovedReviews();
-	}, []);
+			if (response.data?.success && response.data?.reviews) {
+				// Lọc chỉ những bài viết từ người mà user đang follow
+				const followingIds = followingList.map((user: any) => user._id);
+				const followingReviews = response.data.reviews.filter((review: Review) =>
+					followingIds.includes(review.author_id?._id),
+				);
+
+				// Sắp xếp theo thời gian tạo (mới nhất trước tiên)
+				const sortedReviews = followingReviews.sort(
+					(a: Review, b: Review) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+				);
+
+				setReviews(sortedReviews);
+			}
+		} catch (error) {
+			console.error('Lỗi khi tải bài viết:', error);
+			message.error('Không thể tải bài viết');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (followingList.length > 0) {
+			loadFollowingReviews();
+		} else {
+			setReviews([]);
+			setLoading(false);
+		}
+	}, [followingList]);
+
+	// Tính tổng số lượt like cho mỗi review
+	const getLikeCount = (reviewId: string) => {
+		let count = 0;
+		Object.values(allUserInteractions).forEach((userInteraction) => {
+			if (userInteraction.likes[reviewId]) {
+				count++;
+			}
+		});
+		return count;
+	};
+
+	// Tính tổng số lượt dislike cho mỗi review
+	const getDislikeCount = (reviewId: string) => {
+		let count = 0;
+		Object.values(allUserInteractions).forEach((userInteraction) => {
+			if (userInteraction.dislikes[reviewId]) {
+				count++;
+			}
+		});
+		return count;
+	};
 
 	// Xử lý khi nhấn nút Like
 	const handleLike = (reviewId: string) => {
-		// Kiểm tra đăng nhập
 		if (!currentUser?._id) {
 			message.warning('Vui lòng đăng nhập để thích bài viết');
 			return;
@@ -162,13 +204,10 @@ export default function HomeReviews() {
 		setInteractions((prev) => {
 			const newInteractions = { ...prev };
 
-			// Nếu đã like trước đó, bỏ like
 			if (newInteractions.likes[reviewId]) {
 				delete newInteractions.likes[reviewId];
 				message.info('Đã bỏ thích bài viết');
-			}
-			// Nếu chưa like, thêm like và xóa dislike nếu có
-			else {
+			} else {
 				newInteractions.likes[reviewId] = true;
 				if (newInteractions.dislikes[reviewId]) {
 					delete newInteractions.dislikes[reviewId];
@@ -179,9 +218,9 @@ export default function HomeReviews() {
 			return newInteractions;
 		});
 	};
+
 	// Xử lý khi nhấn nút Dislike
 	const handleDislike = (reviewId: string) => {
-		// Kiểm tra đăng nhập
 		if (!currentUser?._id) {
 			message.warning('Vui lòng đăng nhập để không thích bài viết');
 			return;
@@ -190,13 +229,10 @@ export default function HomeReviews() {
 		setInteractions((prev) => {
 			const newInteractions = { ...prev };
 
-			// Nếu đã dislike trước đó, bỏ dislike
 			if (newInteractions.dislikes[reviewId]) {
 				delete newInteractions.dislikes[reviewId];
 				message.info('Đã bỏ không thích bài viết');
-			}
-			// Nếu chưa dislike, thêm dislike và xóa like nếu có
-			else {
+			} else {
 				newInteractions.dislikes[reviewId] = true;
 				if (newInteractions.likes[reviewId]) {
 					delete newInteractions.likes[reviewId];
@@ -207,93 +243,54 @@ export default function HomeReviews() {
 			return newInteractions;
 		});
 	};
-
-	// Xử lý khi nhấn nút Follow
-	const handleFollow = async (authorInfo: any) => {
-		// Kiểm tra đăng nhập
+	// Xử lý khi nhấn nút Unfollow
+	const handleUnfollow = async (authorInfo: any) => {
 		if (!currentUser?._id) {
-			message.warning('Vui lòng đăng nhập để theo dõi người dùng');
-			return;
-		}
-
-		// Kiểm tra nếu đang cố follow chính mình
-		if (currentUser._id === authorInfo._id) {
-			message.warning('Bạn không thể theo dõi chính mình');
+			message.warning('Vui lòng đăng nhập');
 			return;
 		}
 
 		const userId = authorInfo._id;
-		const isCurrentlyFollowing = isFollowing(userId);
-
-		if (isCurrentlyFollowing) {
-			// Unfollow
-			const success = await unfollowUser(userId);
-			if (success) {
-				message.success(`Đã bỏ theo dõi ${authorInfo.profile?.username || 'người dùng này'}`);
-			} else {
-				message.error('Có lỗi xảy ra khi bỏ theo dõi');
-			}
+		const success = await unfollowUser(userId);
+		if (success) {
+			message.success(`Đã bỏ theo dõi ${authorInfo.profile?.username || 'người dùng này'}`);
+			// Refresh following list và reload reviews để cập nhật UI
+			await getFollowingList();
+			// Reload reviews after unfollowing to remove their posts immediately
+			loadFollowingReviews();
 		} else {
-			// Follow
-			const success = await followUser(userId, authorInfo);
-			if (success) {
-				message.success(`Đã theo dõi ${authorInfo.profile?.username || 'người dùng này'}`);
-			} else {
-				message.info('Bạn đã theo dõi người dùng này rồi');
-			}
+			message.error('Có lỗi xảy ra khi bỏ theo dõi');
 		}
-	}; // Đếm số lượng like cho một review từ tất cả người dùng
-	const getLikeCount = (reviewId: string) => {
-		let totalCount = 0;
-
-		// Đếm tổng số like từ tất cả người dùng
-		Object.values(allUserInteractions).forEach((userInteraction) => {
-			if (userInteraction.likes && userInteraction.likes[reviewId]) {
-				totalCount += 1;
-			}
-		});
-
-		return totalCount;
-	};
-
-	// Đếm số lượng dislike cho một review từ tất cả người dùng
-	const getDislikeCount = (reviewId: string) => {
-		let totalCount = 0;
-
-		// Đếm tổng số dislike từ tất cả người dùng
-		Object.values(allUserInteractions).forEach((userInteraction) => {
-			if (userInteraction.dislikes && userInteraction.dislikes[reviewId]) {
-				totalCount += 1;
-			}
-		});
-
-		return totalCount;
 	};
 
 	if (loading) {
-		return <div>Đang tải bài viết...</div>;
+		return (
+			<div style={{ textAlign: 'center', padding: '40px' }}>
+				<Text>Đang tải bài viết...</Text>
+			</div>
+		);
+	}
+
+	if (followingList.length === 0) {
+		return (
+			<Empty
+				description='Bạn chưa theo dõi ai. Hãy quay lại trang chủ để theo dõi những người dùng khác!'
+				style={{ marginTop: '40px' }}
+			/>
+		);
+	}
+
+	if (reviews.length === 0) {
+		return <Empty description='Những người bạn theo dõi chưa có bài viết nào' style={{ marginTop: '40px' }} />;
 	}
 
 	return (
-		<div>
+		<div style={{ maxWidth: '800px', margin: '0 auto' }}>
 			{reviews.map((review) => (
-				<Card
-					key={review._id}
-					style={{
-						marginBottom: 16,
-						backgroundColor: '#f8f9fa',
-						borderRadius: 8,
-						border: 'none',
-					}}
-					bodyStyle={{ padding: 16 }}
-				>
+				<Card key={review._id} style={{ marginBottom: 24, borderRadius: 12 }}>
 					{/* Header */}
-					<div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 12 }}>
-						<Avatar
-							size={48}
-							style={{ marginRight: 12, backgroundColor: '#87d068' }}
-							// src={review.author_id?.profile?.avatar_url}
-						>
+					<div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+						<Avatar size={48} style={{ marginRight: 12, backgroundColor: '#87d068' }}>
 							{review.author_id?.profile?.username?.charAt(0)?.toUpperCase()}
 						</Avatar>
 						<div style={{ flex: 1 }}>
@@ -303,18 +300,11 @@ export default function HomeReviews() {
 										{review.author_id?.profile?.username || 'Ẩn danh'}
 									</Text>
 									<Text type='secondary'>Người mới</Text>
-								</div>{' '}
+								</div>
 								<Space>
-									{/* Chỉ hiển thị nút Follow nếu không phải bài viết của chính mình */}
-									{currentUser?._id !== review.author_id?._id && (
-										<Button
-											type={isFollowing(review.author_id?._id) ? 'default' : 'primary'}
-											style={{ borderRadius: 16 }}
-											onClick={() => handleFollow(review.author_id)}
-										>
-											{isFollowing(review.author_id?._id) ? 'Đang theo dõi' : 'Follow'}
-										</Button>
-									)}
+									<Button danger style={{ borderRadius: 16 }} onClick={() => handleUnfollow(review.author_id)}>
+										Bỏ theo dõi
+									</Button>
 									<Button
 										type='default'
 										style={{

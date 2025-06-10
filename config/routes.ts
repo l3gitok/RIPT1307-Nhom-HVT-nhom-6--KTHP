@@ -92,6 +92,11 @@ export default [
 		component: './BangXepHang',
 	},
 	{
+		path: '/dang-theo-doi',
+		name: 'Đang theo dõi',
+		component: './DangTheoDoi',
+	},
+	{
 		path: '/notification',
 		routes: [
 			{
