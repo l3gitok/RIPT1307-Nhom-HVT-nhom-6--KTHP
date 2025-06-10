@@ -203,27 +203,61 @@ const PostModal: React.FC<PostModalProps> = ({
 							style={{ fontSize: '24px', color: '#fadb14' }}
 						/>
 					</Form.Item>
-				</Form>
-
+				</Form>{' '}
 				<div style={{ marginBottom: 16 }}>
-					<Upload multiple showUploadList={false} beforeUpload={() => false} onChange={handleUpload} accept='image/*'>
-						<Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+					<Upload
+						showUploadList={false}
+						beforeUpload={() => false}
+						onChange={handleUpload}
+						accept='image/*'
+						disabled={postImages.length >= 2}
+					>
+						<Button icon={<UploadOutlined />} disabled={postImages.length >= 2}>
+							{postImages.length >= 2 ? 'Đã đạt giới hạn (2 ảnh)' : `Chọn ảnh (${postImages.length}/2)`}
+						</Button>
 					</Upload>
 					{Array.isArray(postImages) && postImages.length > 0 && (
 						<div style={{ marginTop: 16, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-							{' '}
-							{postImages.map((img) => (
-								<img
+							{postImages.map((img, index) => (
+								<div
 									key={`img-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`}
-									src={img}
-									alt='preview'
-									style={{ maxWidth: 120, maxHeight: 90, borderRadius: 12, boxShadow: '0 2px 8px #ccc' }}
-								/>
+									style={{ position: 'relative', display: 'inline-block' }}
+								>
+									<img
+										src={img}
+										alt='preview'
+										style={{ maxWidth: 120, maxHeight: 90, borderRadius: 12, boxShadow: '0 2px 8px #ccc' }}
+									/>
+									<Button
+										type='primary'
+										danger
+										size='small'
+										shape='circle'
+										onClick={() => {
+											const newImages = [...postImages];
+											newImages.splice(index, 1);
+											setPostImages(newImages);
+										}}
+										style={{
+											position: 'absolute',
+											top: -8,
+											right: -8,
+											width: 20,
+											height: 20,
+											fontSize: 12,
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											padding: 0,
+										}}
+									>
+										×
+									</Button>
+								</div>
 							))}
 						</div>
 					)}
 				</div>
-
 				<div style={{ marginBottom: 20 }}>
 					<div style={{ marginBottom: 8, fontWeight: 500 }}>Nội dung đánh giá</div>
 					<ReactQuill
@@ -238,7 +272,6 @@ const PostModal: React.FC<PostModalProps> = ({
 						placeholder='Hãy chia sẻ trải nghiệm của bạn về game này...'
 					/>
 				</div>
-
 				<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
 					<Button
 						type='primary'

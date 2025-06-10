@@ -1,13 +1,9 @@
 import { Button, Col, Image, Row, Typography, Layout, Input, Dropdown, Menu, Modal, List, Upload, message } from 'antd';
 import React, { useState } from 'react';
-import { SearchOutlined, UserOutlined, DislikeOutlined, UploadOutlined } from '@ant-design/icons';
 import { Editor } from '@tinymce/tinymce-react';
 import GameHubHeader from '@/components/GameHub/Header';
 import Navbar from '@/components/GameHub/Navbar';
-import ProfileSection from '@/components/GameHub/ProfileSection';
 import PostModal from '@/components/GameHub/PostModal';
-import PostContent from '@/components/GameHub/PostContent';
-import CommentModal from '@/components/GameHub/CommentModal';
 import HomeReviews from '@/components/GameHub/HomeReviews';
 import { history } from 'umi';
 
@@ -38,21 +34,28 @@ const Desktop = (): JSX.Element => {
 	const [postModalOpen, setPostModalOpen] = useState(false);
 	const [postImages, setPostImages] = useState<string[]>([]);
 	const [postContent, setPostContent] = useState('');
-
 	const handleUpload = (info: any) => {
-		const files = (info.fileList || []).map((f: any) => f.originFileObj || f.file).filter(Boolean);
-		if (files.length === 0) {
-			setPostImages([]);
+		// Chỉ lấy file được chọn mới nhất
+		const latestFile = info.file?.originFileObj || info.file;
+
+		if (!latestFile) {
 			return;
 		}
-		const readers = files.map((file: File) => {
-			return new Promise<string>((resolve) => {
-				const reader = new FileReader();
-				reader.onload = (e) => resolve(e.target?.result as string);
-				reader.readAsDataURL(file);
-			});
-		});
-		Promise.all(readers).then((imgs) => setPostImages(imgs));
+
+		// Kiểm tra giới hạn 2 ảnh
+		if (postImages.length >= 2) {
+			message.warning('Chỉ được chọn tối đa 2 ảnh');
+			return;
+		}
+
+		// Chuyển đổi file mới thành base64
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			const newImage = e.target?.result as string;
+			// Thêm ảnh mới vào mảng hiện tại (không thay thế toàn bộ)
+			setPostImages((prev) => [...prev, newImage]);
+		};
+		reader.readAsDataURL(latestFile);
 	};
 
 	return (
