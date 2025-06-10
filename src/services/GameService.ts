@@ -1,5 +1,4 @@
 import axios from '@/utils/axios';
-import { Game } from '@/models/game';
 
 const API_URL = 'https://gamehubapi-test.onrender.com/api/';
 

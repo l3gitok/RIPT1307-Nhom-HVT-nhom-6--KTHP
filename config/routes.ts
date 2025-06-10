@@ -87,6 +87,11 @@ export default [
 		component: './NguoiDung',
 	},
 	{
+		path: '/bang-xep-hang',
+		name: 'Bảng Xếp Hạng',
+		component: './BangXepHang',
+	},
+	{
 		path: '/notification',
 		routes: [
 			{
