@@ -36,13 +36,6 @@ const validateReply = [
     .isLength({ min: 1, max: 500 }).withMessage('Reply phải từ 1-500 ký tự')
 ];
 
-const validateUpdateStatus = [
-  validateMongoId,
-  body('status')
-    .notEmpty().withMessage('Trạng thái không được bỏ trống')
-    .isIn(['pending', 'approved', 'rejected']).withMessage('Trạng thái không hợp lệ')
-];
-
 const validateReport = [
   validateMongoId,
   body('reason')
@@ -54,24 +47,20 @@ const validateReport = [
 ];
 
 const validateUpdateReportStatus = [
-  validateMongoId,
-  param('reportId').custom((value) => {
-    if (!mongoose.Types.ObjectId.isValid(value)) {
-      throw new Error('Report ID không hợp lệ');
-    }
-    return true;
-  }),
+  param('id').isMongoId().withMessage('ID comment không hợp lệ'),
+  param('reportId').isMongoId().withMessage('ID report không hợp lệ'),
   body('status')
-    .notEmpty().withMessage('Trạng thái không được bỏ trống')
-    .isIn(['pending', 'resolved', 'rejected']).withMessage('Trạng thái không hợp lệ')
+    .notEmpty().withMessage('Trạng thái report không được bỏ trống')
+    .isIn(['pending', 'resolved', 'rejected']).withMessage('Trạng thái report không hợp lệ')
 ];
+
+
 
 module.exports = {
   validateMongoId,
   validateCreateComment,
   validateUpdateComment,
   validateReply,
-  validateUpdateStatus,
   validateReport,
   validateUpdateReportStatus
 };

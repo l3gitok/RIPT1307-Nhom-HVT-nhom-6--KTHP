@@ -128,19 +128,6 @@ exports.addReply = async (req, res) => {
   }
 };
 
-// Cập nhật trạng thái comment (Admin only)
-exports.updateStatus = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const comment = await commentService.updateStatus(id, status);
-    res.json(comment);
-  } catch (error) {
-    next(error);
-  }
-};
-
 // Report comment
 exports.reportComment = async (req, res, next) => {
   try {
