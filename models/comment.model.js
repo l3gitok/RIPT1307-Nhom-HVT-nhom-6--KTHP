@@ -26,11 +26,6 @@ const commentSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending'
-  },
   reports: [{
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -81,7 +76,7 @@ const commentSchema = new mongoose.Schema({
 });
 
 // Indexes
-commentSchema.index({ review_id: 1, status: 1 });
+commentSchema.index({ review_id: 1 });
 commentSchema.index({ author_id: 1 });
 commentSchema.index({ parent_id: 1 });
 commentSchema.index({ created_at: -1 });
@@ -132,9 +127,8 @@ commentSchema.methods.getReplies = async function() {
 // Phương thức để lấy comment tree
 commentSchema.statics.getCommentTree = async function(reviewId) {
   const comments = await this.find({ 
-    review_id: reviewId,
-    parent_id: null,
-    status: 'approved'
+    review_id: reviewId, // Lấy tất cả comment gốc của review
+    parent_id: null
   })
   .populate('author_id', 'profile.username profile.avatar_url')
   .sort({ created_at: -1 });

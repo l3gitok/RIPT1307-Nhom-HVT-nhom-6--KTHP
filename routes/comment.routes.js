@@ -29,7 +29,4 @@ router.patch('/:id/reports/:reportId/status', commentValidation.validateUpdateRe
 // Reply to comment
 router.post('/:id/reply', commentValidation.validateReply, commentController.addReply);
 
-// Admin only routes
-router.patch('/:id/status', commentValidation.validateUpdateStatus, isAdmin, commentController.updateStatus);
-
 module.exports = router;

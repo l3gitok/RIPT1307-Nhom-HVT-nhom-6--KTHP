@@ -235,18 +235,6 @@ class CommentService {
     };
   }
 
-  // Cập nhật trạng thái comment (Admin only)
-  async updateStatus(id, status) {
-    const comment = await Comment.findById(id);
-    if (!comment) {
-      throw new Error('Không tìm thấy comment');
-    }
-
-    comment.status = status;
-    await comment.save();
-    return comment;
-  }
-
   // Report comment
   async reportComment(id, userId, data) {
     const { reason, description } = data;
@@ -342,27 +330,6 @@ class CommentService {
 
     report.status = status;
     await comment.save();
-
-    // Nếu report được chấp nhận, cập nhật trạng thái comment
-    if (status === 'resolved') {
-      comment.status = 'rejected';
-      await comment.save();
-
-      // Thông báo cho chủ comment về việc comment bị từ chối
-      await notificationService.createNotification({
-        recipient: comment.author_id,
-        sender: null, // Hoặc ID của admin thực hiện hành động nếu cần
-        type: NOTIFICATION_TYPES.COMMENT_STATUS_UPDATED,
-        title: 'Bình luận của bạn đã bị từ chối',
-        message: `Bình luận của bạn "${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}" đã bị từ chối. Lý do: ${report.reason}`,
-        data: {
-          comment_id: comment._id,
-          new_status: 'rejected',
-          reason: report.reason,
-          report_id: reportId
-        }
-      });
-    }
 
     return comment;
   }
