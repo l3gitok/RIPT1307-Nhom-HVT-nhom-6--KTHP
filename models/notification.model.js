@@ -44,16 +44,15 @@ const notificationSchema = new mongoose.Schema({
   is_read: {
     type: Boolean,
     default: false
-  },
-  created_at: {
-    type: Date,
-    default: Date.now
   }
 }, {
   timestamps: true
 });
 
-module.exports = {
-  Notification: mongoose.model('Notification', notificationSchema),
-  NOTIFICATION_TYPES
-};
+// ✅ Create the model
+const Notification = mongoose.model('Notification', notificationSchema);
+
+// ✅ Export both ways for compatibility
+module.exports = Notification;
+module.exports.Notification = Notification;
+module.exports.NOTIFICATION_TYPES = NOTIFICATION_TYPES;

@@ -1,4 +1,7 @@
 const commentService = require('../services/comment.service');
+const reviewService = require('../services/review.service');
+const notificationService = require('../services/notification.service');
+const { NOTIFICATION_TYPES } = require('../models/notification.model');
 const { validationResult } = require('express-validator');
 
 // Lấy danh sách comment của một review
@@ -26,19 +29,95 @@ exports.getCommentById = async (req, res, next) => {
 };
 
 // Tạo comment mới
-exports.createComment = async (req, res, next) => {
+exports.createComment = async (req, res) => {
   try {
-    const { content, review_id, parent_id } = req.body;
-    const authorId = req.user._id;
+    const { review_id, content, parent_id } = req.body;
+    const author_id = req.user.id || req.user._id;
 
-    const comment = await commentService.createComment(
-      { content, review_id, parent_id },
-      authorId
-    );
+    console.log('Creating comment:', { review_id, content, author_id });
 
-    res.status(201).json(comment);
+    // Validate required fields
+    if (!review_id || !content) {
+      return res.status(400).json({
+        success: false,
+        message: 'Review ID and content are required'
+      });
+    }
+
+    if (content.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Comment content cannot be empty'
+      });
+    }
+
+    if (content.trim().length > 1000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Comment content cannot exceed 1000 characters'
+      });
+    }
+
+    // Check if review exists
+    const review = await reviewService.getReviewById(review_id);
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: 'Review not found'
+      });
+    }
+
+    // Create comment data
+    const commentData = {
+      review_id,
+      content: content.trim(),
+      author_id,
+      parent_id: parent_id || null,
+      level: parent_id ? 1 : 0,
+      status: 'active'
+    };
+
+    console.log('Comment data to create:', commentData);
+
+    // Create comment
+    const newComment = await commentService.createComment(commentData);
+    console.log('Comment created:', newComment);
+
+    // ✅ Create notification với proper error handling
+    try {
+      // Only create notification if commenter is not the review author
+      if (review.author_id.toString() !== author_id.toString()) {
+        await notificationService.createNotification({
+          recipient: review.author_id,
+          sender: author_id,
+          type: NOTIFICATION_TYPES.COMMENT_REVIEW,
+          title: 'Bình luận mới',
+          message: `${req.user.profile?.username || req.user.email} đã bình luận về review của bạn`,
+          data: {
+            review_id,
+            comment_id: newComment._id,
+            review_title: review.title || 'Review'
+          }
+        });
+        console.log('Notification created successfully');
+      }
+    } catch (notificationError) {
+      console.error('Error creating notification:', notificationError);
+      // Don't fail the comment creation if notification fails
+    }
+
+    res.status(201).json({
+      success: true,
+      data: newComment,
+      message: 'Comment created successfully'
+    });
+
   } catch (error) {
-    next(error);
+    console.error('Error creating comment:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Internal server error'
+    });
   }
 };
 
