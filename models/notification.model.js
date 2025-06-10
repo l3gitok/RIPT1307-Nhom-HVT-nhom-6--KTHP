@@ -2,18 +2,20 @@ const mongoose = require('mongoose');
 
 // Định nghĩa các loại thông báo
 const NOTIFICATION_TYPES = {
-  FOLLOW: 'follow',
-  UNFOLLOW: 'unfollow', 
-  LIKE_POST: 'like_post',
-  COMMENT_POST: 'comment_post',
-  LIKE_REVIEW: 'like_review',
-  COMMENT_REVIEW: 'comment_review',
-  SYSTEM: 'system',
-  GAME_UPDATE: 'game_update'
+  FOLLOW: 'follow', // User A follows User B
+  UNFOLLOW: 'unfollow', // User A unfollows User B
+  LIKE_REVIEW: 'like_review', // User A likes User B's review
+  NEW_COMMENT_ON_REVIEW: 'new_comment_on_review', // User A comments on User B's review
+  NEW_REPLY_TO_COMMENT: 'new_reply_to_comment', // User A replies to User B's comment
+  LIKE_COMMENT: 'like_comment', // User A likes User B's comment
+  SYSTEM: 'system', // General system notifications
+  GAME_UPDATE: 'game_update', // Game information updated
+  COMMENT_REPORTED_ADMIN: 'comment_reported_admin', // A comment was reported (to Admins)
+  COMMENT_STATUS_UPDATED: 'comment_status_updated' // User's comment status changed (e.g., rejected)
 };
 
 const notificationSchema = new mongoose.Schema({
-  recipient: {
+  user_id: { // Đổi tên từ recipient
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
@@ -37,22 +39,20 @@ const notificationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  data: {
+  payload: { // Đổi tên từ data
     type: mongoose.Schema.Types.Mixed,
     default: {}
   },
-  is_read: {
+  read: { // Đổi tên từ is_read
     type: Boolean,
     default: false
   }
 }, {
-  timestamps: true
+  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } // Cấu hình tên trường timestamps
 });
 
-// ✅ Create the model
-const Notification = mongoose.model('Notification', notificationSchema);
-
-// ✅ Export both ways for compatibility
-module.exports = Notification;
-module.exports.Notification = Notification;
-module.exports.NOTIFICATION_TYPES = NOTIFICATION_TYPES;
+// ✅ Standardized export
+module.exports = {
+  Notification: mongoose.model('Notification', notificationSchema),
+  NOTIFICATION_TYPES: NOTIFICATION_TYPES
+};

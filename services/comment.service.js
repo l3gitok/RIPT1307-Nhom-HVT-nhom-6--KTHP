@@ -1,7 +1,9 @@
 const Comment = require('../models/comment.model');
 const Review = require('../models/review.model');
-const Notification = require('../models/notification.model');
-
+const notificationService = require('../services/notification.service');
+const { NOTIFICATION_TYPES } = require('../models/notification.model'); // This import will now work correctly
+const User = require('../models/user.model');
+ 
 class CommentService {
   // Lấy danh sách comment của một review (dạng tree)
   async getCommentsByReview(reviewId, { page = 1, limit = 10, sort = '-created_at' }) {
@@ -67,31 +69,46 @@ class CommentService {
 
     await comment.save();
 
-    // Tạo notification
+    // Tạo notification sử dụng service
+    const senderUser = await User.findById(authorId).select('profile.username').lean();
+    const senderUsername = senderUser?.profile?.username || 'Một người dùng';
+
     if (parent_id) {
       // Thông báo cho chủ comment gốc
       const parentComment = await Comment.findById(parent_id);
       if (parentComment.author_id.toString() !== authorId.toString()) {
-        await Notification.create({
-          user_id: parentComment.author_id,
-          type: 'new_reply',
-          payload: {
+        await notificationService.createNotification({
+          recipient: parentComment.author_id,
+          sender: authorId,
+          type: NOTIFICATION_TYPES.NEW_REPLY_TO_COMMENT,
+          title: 'Có trả lời mới cho bình luận của bạn',
+          message: `${senderUsername} đã trả lời bình luận của bạn: "${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}"`,
+          data: {
             comment_id: comment._id,
             parent_comment_id: parent_id,
-            author_id: authorId
+            review_id: review._id, // review đã được fetch ở trên
+            sender_id: authorId
           }
         });
       }
     } else {
       // Thông báo cho chủ review
       if (review.author_id.toString() !== authorId.toString()) {
-        await Notification.create({
-          user_id: review.author_id,
-          type: 'new_comment',
-          payload: {
+        // Populate game title for a richer message
+        const populatedReview = await Review.findById(review_id).populate('game_id', 'title').lean();
+        const gameTitle = populatedReview?.game_id?.title || 'một game';
+
+        await notificationService.createNotification({
+          recipient: review.author_id,
+          sender: authorId,
+          type: NOTIFICATION_TYPES.NEW_COMMENT_ON_REVIEW,
+          title: 'Có bình luận mới trên review của bạn',
+          message: `${senderUsername} đã bình luận trên review của bạn cho game "${gameTitle}": "${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}"`,
+          data: {
             comment_id: comment._id,
             review_id: review._id,
-            author_id: authorId
+            sender_id: authorId,
+            game_id: populatedReview?.game_id?._id
           }
         });
       }
@@ -99,7 +116,6 @@ class CommentService {
 
     return comment;
   }
-
   // Cập nhật comment
   async updateComment(id, data, userId, isAdmin) {
     const comment = await Comment.findById(id);
@@ -162,14 +178,19 @@ class CommentService {
 
     await comment.save();
 
-    // Tạo notification cho chủ comment
+    // Tạo notification cho chủ comment khi có like mới
     if (!isLiked && comment.author_id.toString() !== userId.toString()) {
-      await Notification.create({
-        user_id: comment.author_id,
-        type: 'new_like',
-        payload: {
+      const senderUser = await User.findById(userId).select('profile.username').lean();
+      const senderUsername = senderUser?.profile?.username || 'Một người dùng';
+      await notificationService.createNotification({
+        recipient: comment.author_id._id, // comment.author_id is populated
+        sender: userId,
+        type: NOTIFICATION_TYPES.LIKE_COMMENT,
+        title: 'Bình luận của bạn được thích',
+        message: `${senderUsername} đã thích bình luận của bạn: "${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}"`,
+        data: {
           comment_id: comment._id,
-          user_id: userId
+          sender_id: userId
         }
       });
     }
@@ -250,18 +271,29 @@ class CommentService {
 
     await comment.save();
 
-    // Tạo notification cho admin
-    await Notification.create({
-      user_id: process.env.ADMIN_ID, // ID của admin
-      type: 'new_report',
-      payload: {
-        comment_id: comment._id,
-        user_id: userId,
-        reason
-      }
-    });
+    // Tạo notification cho tất cả admin
+    const admins = await User.find({ role: 'admin' }).select('_id').lean();
+    const reporterUser = await User.findById(userId).select('profile.username').lean();
+    const reporterUsername = reporterUser?.profile?.username || 'Một người dùng';
+    const commentAuthorUsername = comment.author_id?.profile?.username || 'một người dùng khác'; // author_id is populated
 
-    return comment;
+    for (const admin of admins) {
+      await notificationService.createNotification({
+        recipient: admin._id,
+        sender: userId,
+        type: NOTIFICATION_TYPES.COMMENT_REPORTED_ADMIN,
+        title: 'Bình luận bị báo cáo',
+        message: `Người dùng ${reporterUsername} đã báo cáo một bình luận của ${commentAuthorUsername}. Lý do: ${reason}`,
+        data: {
+          comment_id: comment._id,
+          reported_by_id: userId,
+          comment_author_id: comment.author_id._id,
+          reason: reason,
+          report_description: description
+        }
+      });
+    }
+    return comment; // Return the original comment object
   }
 
   // Lấy danh sách report của comment
@@ -316,13 +348,18 @@ class CommentService {
       comment.status = 'rejected';
       await comment.save();
 
-      // Thông báo cho chủ comment
-      await Notification.create({
-        user_id: comment.author_id,
-        type: 'comment_rejected',
-        payload: {
+      // Thông báo cho chủ comment về việc comment bị từ chối
+      await notificationService.createNotification({
+        recipient: comment.author_id,
+        sender: null, // Hoặc ID của admin thực hiện hành động nếu cần
+        type: NOTIFICATION_TYPES.COMMENT_STATUS_UPDATED,
+        title: 'Bình luận của bạn đã bị từ chối',
+        message: `Bình luận của bạn "${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}" đã bị từ chối. Lý do: ${report.reason}`,
+        data: {
           comment_id: comment._id,
-          reason: report.reason
+          new_status: 'rejected',
+          reason: report.reason,
+          report_id: reportId
         }
       });
     }
