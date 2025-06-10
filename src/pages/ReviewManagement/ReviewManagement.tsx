@@ -20,6 +20,12 @@ import type { ColumnsType } from 'antd/es/table';
 import { ReviewService } from '@/services';
 import type { Review } from '@/services/ReviewServices';
 
+// Hàm loại bỏ thẻ HTML từ nội dung
+const removeHtmlTags = (html: string) => {
+	if (!html) return '';
+	return html.replace(/<\/?[^>]+(>|$)/g, '');
+};
+
 const { Title, Text, Paragraph } = Typography;
 
 const statusList = [
@@ -358,28 +364,30 @@ const ReviewManagement: React.FC = () => {
 							<Descriptions.Item label='Ngày tạo' span={2}>
 								{formatDate(selectedReview.created_at)}
 							</Descriptions.Item>
-						</Descriptions>
-
+						</Descriptions>{' '}
 						<Title level={5}>Nội dung đánh giá:</Title>
 						<Card size='small' style={{ marginBottom: 16 }}>
-							<Paragraph>{selectedReview.content}</Paragraph>
+							<Paragraph>{removeHtmlTags(selectedReview.content)}</Paragraph>
 						</Card>
-
 						{selectedReview.images && selectedReview.images.length > 0 && (
 							<>
 								<Title level={5}>Hình ảnh đính kèm:</Title>
-								<Space wrap>
-									{selectedReview.images.map((url: string, index: number) => (
-										<Image
-											key={index}
-											src={url}
-											alt={`review-image-${index}`}
-											width={100}
-											height={100}
-											style={{ objectFit: 'cover', borderRadius: '8px' }}
-										/>
-									))}
-								</Space>
+								<div
+									style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}
+								>
+									<Image.PreviewGroup>
+										<Space direction='vertical' align='center' style={{ width: '100%' }}>
+											{selectedReview.images.map((url: string, index: number) => (
+												<Image
+													key={`image-${url}-${Date.now()}`}
+													src={url}
+													alt={`review-image-${index}`}
+													style={{ maxWidth: '100%', maxHeight: 400, objectFit: 'contain', borderRadius: '8px' }}
+												/>
+											))}
+										</Space>
+									</Image.PreviewGroup>
+								</div>
 							</>
 						)}
 					</div>

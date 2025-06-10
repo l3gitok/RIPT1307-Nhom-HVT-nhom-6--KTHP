@@ -7,6 +7,12 @@ import { ReviewService, UploadService } from '@/services';
 import type { Game } from '@/services/GameServices';
 import axios from '@/utils/axios';
 
+// Hàm loại bỏ thẻ HTML từ nội dung
+const removeHtmlTags = (html: string) => {
+	if (!html) return '';
+	return html.replace(/<\/?[^>]+(>|$)/g, '');
+};
+
 interface PostModalProps {
 	visible: boolean;
 	onCancel: () => void;
@@ -107,12 +113,10 @@ const PostModal: React.FC<PostModalProps> = ({
 					setLoading(false);
 					return;
 				}
-			}
-
-			// Create review
+			} // Create review - loại bỏ thẻ HTML từ nội dung
 			const reviewData = {
 				game_id: selectedGame,
-				content: postContent,
+				content: removeHtmlTags(postContent),
 				rating: rating,
 				images: imageUrls,
 			};
@@ -207,9 +211,10 @@ const PostModal: React.FC<PostModalProps> = ({
 					</Upload>
 					{Array.isArray(postImages) && postImages.length > 0 && (
 						<div style={{ marginTop: 16, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-							{postImages.map((img, idx) => (
+							{' '}
+							{postImages.map((img) => (
 								<img
-									key={`img-${idx}`}
+									key={`img-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`}
 									src={img}
 									alt='preview'
 									style={{ maxWidth: 120, maxHeight: 90, borderRadius: 12, boxShadow: '0 2px 8px #ccc' }}
