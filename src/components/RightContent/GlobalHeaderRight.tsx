@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useModel } from 'umi';
 import { Avatar, Space } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import AvatarDropdown from './AvatarDropdown';
 import styles from './index.less';
 
@@ -9,33 +10,6 @@ export type SiderTheme = 'light' | 'dark';
 const UserProfile: React.FC = () => {
     const { initialState } = useModel('@@initialState');
     const currentUser = initialState?.currentUser;
-    const [userInfo, setUserInfo] = useState<any>(null);
-    
-    // Lấy thông tin user từ API
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const token = localStorage.getItem('accessToken');
-                if (!token) return;
-
-                const response = await fetch('https://gamehubapi-test.onrender.com/api/auth/me', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserInfo(data.user);
-                }
-            } catch (error) {
-                console.error('Error fetching user info:', error);
-            }
-        };
-
-        fetchUserInfo();
-    }, []);
     
     // Lấy chữ cái đầu của tên
     const getInitials = (name: string) => {
@@ -62,9 +36,7 @@ const UserProfile: React.FC = () => {
         return colors[Math.abs(hash) % colors.length];
     };
 
-    // Lấy username từ userInfo, fallback về currentUser và cuối cùng là 'User'
-    const userName = userInfo?.profile?.username;
-                    
+    const userName = currentUser?.name || 'User';
     const initials = getInitials(userName);
     const avatarColor = getAvatarColor(userName);
 
@@ -72,15 +44,15 @@ const UserProfile: React.FC = () => {
         <Space align="center" style={{ color: 'white' }}>
             <Avatar
                 size={32}
-                src={userInfo?.profile?.avatar_url} // Hiển thị avatar nếu có
                 style={{ 
                     backgroundColor: avatarColor,
                     color: 'white',
                     fontWeight: 'bold',
                     fontSize: '14px'
                 }}
+                // src={currentUser?.avatar}
             >
-                {!userInfo?.profile?.avatar_url && initials}
+                {initials}
             </Avatar>
             <span style={{ fontSize: '14px' }}>
                 {userName}
@@ -95,6 +67,7 @@ const GlobalHeaderRight: React.FC = () => {
     return (
         <div className={styles.right}>
             <Space align="center" size="large">
+                <h1 style={{ color: 'white', fontSize: '20px', margin: 0 }}>Olecgema</h1>
                 <UserProfile />
                 <AvatarDropdown />
             </Space>

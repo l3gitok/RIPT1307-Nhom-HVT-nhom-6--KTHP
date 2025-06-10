@@ -17,8 +17,11 @@ export default function () {
 				},
 			});
 			if (res.data.success) {
-				setData(res.data.users);
-			}
+                setData(res.data.users);
+                // Lưu số lượng user vào localStorage
+                const userCount = res.data.users.length;
+                localStorage.setItem('userCount', userCount.toString());
+            }
 		} catch (err) {
 			message.error('Lỗi khi tải danh sách user');
 		}

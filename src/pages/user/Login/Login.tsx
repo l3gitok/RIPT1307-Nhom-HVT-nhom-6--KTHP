@@ -52,9 +52,8 @@ const Login: React.FC = () => {
 			<div className={styles.content}>
 				<div className={styles.top}>
 					<div className={styles.header}>
-						<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-							<img alt='logo' className={styles.logo} src='/logo-full.svg' />
-						</div>
+							<img src='/sad.png' alt='logo' className={styles.logo} />
+						
 					</div>
 				</div>
 
@@ -62,7 +61,7 @@ const Login: React.FC = () => {
 					<Form
 						form={form}
 						onFinish={handleSubmit}
-						layout='vertical'
+						layout='vertical' 
 						initialValues={{
 							email: '',
 							password: '',

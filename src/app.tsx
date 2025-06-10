@@ -124,5 +124,5 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
 		),
 		menuHeaderRender: undefined,
 		...initialState?.settings,
-	};
+		};
 };

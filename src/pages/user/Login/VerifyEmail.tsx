@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, message, Card, Row, Col } from 'antd';
+import { Form, Input, Button, message, Row, Col } from 'antd';
 import { MailOutlined } from '@ant-design/icons';
 import { useLocation, useHistory } from 'umi';
 import styles from '../Login/index.less';
@@ -71,53 +71,88 @@ const VerifyEmail = () => {
     };
 
     return (
-        <div className={styles.main}>
-            <Card title='Xác thực Email' bordered={false}>
-                <p>
-                    Chúng tôi đã gửi mã OTP đến email: <strong>{email}</strong>
-                </p>
-                <p>Vui lòng nhập mã OTP để hoàn tất đăng ký.</p>
+        <div className={styles.container}>
+            <div className={styles.content}>
+                <div className={styles.top}>
+                    <div className={styles.header}>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <img src='/logo2.png' alt='logo' className={styles.logo} />
+                            <span className={styles.title}>GAME HUB</span>
+                        </div>
+                        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                            <h2 style={{ color: '#333', marginBottom: '8px' }}>Xác thực Email</h2>
+                            <p style={{ color: '#ffffff', fontSize: '14px' }}>
+                            Chúng tôi đã gửi mã OTP đến email: <strong style={{ color: '#ffd700' }}>{email}</strong>
+                        </p>
+                        <p style={{ color: '#ffffff', fontSize: '14px' }}>Vui lòng nhập mã OTP để hoàn tất đăng ký.</p>
+                        </div>
+                    </div>
+                </div>
 
-                <Form
-                    form={form}
-                    onFinish={handleSubmit}
-                    layout='vertical'
-                    initialValues={{ email }}
-                >
-                    <Form.Item
-                        name='otp'
-                        rules={[
-                            { required: true, message: 'Vui lòng nhập mã OTP!' },
-                            { len: 6, message: 'Mã OTP phải có 6 ký tự!', pattern: /^[0-9]+$/ },
-                        ]}
+                <div className={styles.main}>
+                    <Form
+                        form={form}
+                        onFinish={handleSubmit}
+                        layout='vertical'
+                        initialValues={{ email }}
                     >
-                        <Input
-                            prefix={<MailOutlined className={styles.prefixIcon} />}
-                            placeholder='Nhập mã OTP'
-                            size='large'
-                        />
-                    </Form.Item>
+                        <Form.Item
+                            label="Mã OTP"
+                            name='otp'
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập mã OTP!' },
+                                { len: 6, message: 'Mã OTP phải có 6 ký tự!', pattern: /^[0-9]+$/ },
+                            ]}
+                        >
+                            <Input
+                                prefix={<MailOutlined className={styles.prefixIcon} />}
+                                placeholder='Nhập mã OTP (6 chữ số)'
+                                size='large'
+                                maxLength={6}
+                            />
+                        </Form.Item>
 
-                    <Form.Item>
                         <Button type='primary' htmlType='submit' block size='large' loading={submitting}>
                             Xác thực
                         </Button>
-                    </Form.Item>
+                    </Form>
 
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Button block onClick={() => history.push('/user/register')}>
-                                Quay lại đăng ký
-                            </Button>
-                        </Col>
-                        <Col span={12}>
-                            <Button type='link' block disabled={submitting} onClick={handleResendOTP}>
-                                Gửi lại mã OTP
-                            </Button>
-                        </Col>
-                    </Row>
-                </Form>
-            </Card>
+                    <div style={{ marginTop: '20px' }}>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Button 
+                                    block 
+                                    size="large"
+                                    onClick={() => history.push('/user/register')}
+                                    style={{ 
+                                        borderRadius: '8px',
+                                        border: '1px solid #d9d9d9',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    Quay lại đăng ký
+                                </Button>
+                            </Col>
+                            <Col span={12}>
+                                <Button 
+                                    type='link' 
+                                    block 
+                                    size="large"
+                                    disabled={submitting} 
+                                    onClick={handleResendOTP}
+                                    style={{ 
+                                        color: '#667eea',
+                                        fontWeight: 500,
+                                        borderRadius: '8px'
+                                    }}
+                                >
+                                    Gửi lại mã OTP
+                                </Button>
+                            </Col>
+                        </Row>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

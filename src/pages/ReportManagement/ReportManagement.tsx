@@ -77,14 +77,39 @@ const ReportManagement: React.FC = () => {
 	};
 
 	// Load stats
-	const loadStats = async () => {
-		try {
-			const statsData = await getReportStats();
-			setStats(statsData);
-		} catch (error) {
-			console.error('Load stats error:', error);
-		}
-	};
+		const loadStats = async () => {
+    try {
+        const statsData = await getReportStats();
+        setStats(statsData);
+
+        // Debug: Log để kiểm tra dữ liệu
+        console.log('Stats data:', statsData);
+
+        // Tính toán từng loại từ statsData
+        const pending = statsData.stats.find((s: { id: string; count: number }) => s.id === 'pending')?.count || 0;
+        // Sửa: Thử cả 'resolved' và kiểm tra total_resolved
+        const resolved = statsData.stats.find((s: { id: string; count: number }) => s.id === 'resolved')?.count || 
+                         statsData.total_resolved || 0;
+        const banned = statsData.total_banned_users || 0;
+        const total = statsData.total_reports || 0;
+
+        // Debug: Log các giá trị đã tính
+        console.log('Calculated values:', { total, pending, resolved, banned });
+
+        // Lưu vào localStorage
+        localStorage.setItem(
+            'reportStats',
+            JSON.stringify({
+                total_reports: total,
+                pending,
+                resolved,
+                banned,
+            })
+        );
+    } catch (error) {
+        console.error('Load stats error:', error);
+    }
+};
 
 	useEffect(() => {
 		loadReports();
@@ -254,37 +279,38 @@ const ReportManagement: React.FC = () => {
 		<div style={{ padding: '24px' }}>
 			{/* Stats Cards */}
 			{stats && (
-				<Row gutter={16} style={{ marginBottom: 24 }}>
-					<Col span={6}>
-						<Card>
-							<Statistic title='Tổng số report' value={stats.total_reports} prefix={<ExclamationCircleOutlined />} />
-						</Card>
-					</Col>
-					<Col span={6}>
-						<Card>
-							<Statistic
-								title='Chờ xử lý'
-								value={stats.stats.find((s) => s.id === 'pending')?.count || 0}
-								valueStyle={{ color: '#faad14' }}
-							/>
-						</Card>
-					</Col>
-					<Col span={6}>
-						<Card>
-							<Statistic
-								title='Đã giải quyết'
-								value={stats.stats.find((s) => s.id === 'resolved')?.count || 0}
-								valueStyle={{ color: '#52c41a' }}
-							/>
-						</Card>
-					</Col>
-					<Col span={6}>
-						<Card>
-							<Statistic title='User bị ban' value={stats.total_banned_users} valueStyle={{ color: '#ff4d4f' }} />
-						</Card>
-					</Col>
-				</Row>
-			)}
+	<Row gutter={16} style={{ marginBottom: 24 }}>
+		<Col span={6}>
+			<Card>
+				<Statistic title='Tổng số report' value={reports.length} prefix={<ExclamationCircleOutlined />} />
+			</Card>
+		</Col>
+		<Col span={6}>
+			<Card>
+				<Statistic
+					title='Chờ xử lý'
+					value={reports.filter((r) => r.status === 'pending').length}
+					valueStyle={{ color: '#faad14' }}
+				/>
+			</Card>
+		</Col>
+		<Col span={6}>
+			<Card>
+				<Statistic
+					title='Đã giải quyết'
+					value={reports.filter((r) => r.status === 'resolved').length}
+					valueStyle={{ color: '#52c41a' }}
+				/>
+			</Card>
+		</Col>
+		<Col span={6}>
+			<Card>
+				<Statistic title='User bị ban' value={stats.total_banned_users} valueStyle={{ color: '#ff4d4f' }} />
+			</Card>
+		</Col>
+	</Row>
+)}
+
 
 			{/* Filters */}
 			<Card style={{ marginBottom: 24 }}>

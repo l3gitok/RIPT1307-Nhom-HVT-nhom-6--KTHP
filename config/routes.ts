@@ -6,10 +6,12 @@ export default [
 		layout: false,
 		routes: [
 			{
+				path: '/',
+				redirect: '/user/login', // Redirect root path về login
+			},
+			{
 				path: '/user/login',
-				layout: false,
-				name: 'login',
-				component: './user/Login',
+				component: './user/Login/Login',
 			},
 			{
 				path: '/user/register',
@@ -45,12 +47,6 @@ export default [
 		name: 'Dashboard',
 		component: './TrangChu',
 		icon: 'HomeOutlined',
-	},
-	{
-		path: 'admin/random-user',
-		name: 'RandomUser',
-		component: './RandomUser',
-		icon: 'ArrowsAltOutlined',
 	},
 	{
 		path: 'admin/quan_ly_user',
