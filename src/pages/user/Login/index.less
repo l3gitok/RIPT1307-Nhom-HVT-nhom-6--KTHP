@@ -2,198 +2,535 @@
 @import '../../../styles/_variable.less';
 
 .container {
-	display: flex;
-	flex-direction: column;
-	min-height: 100vh;
-	overflow: hidden;
-	background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+        animation: float 6s ease-in-out infinite;
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
 }
 
 .lang {
-	width: 100%;
-	height: 40px;
-	line-height: 44px;
-	text-align: right;
-	:global(.ant-dropdown-trigger) {
-		margin-right: 24px;
-	}
+    width: 100%;
+    height: 40px;
+    line-height: 44px;
+    text-align: right;
+    :global(.ant-dropdown-trigger) {
+        margin-right: 24px;
+    }
 }
 
 .content {
-	flex: 1;
-	padding: 32px 12px;
+    flex: 1;
+    padding: 32px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .top {
-	text-align: center;
-	// min-height: 300px;
+    text-align: center;
 }
 
 .header {
-	margin-top: 50px;
-	line-height: 60px;
-	a {
-		text-decoration: none;
-	}
+    margin-bottom: 30px;
+    line-height: 60px;
+    a {
+        text-decoration: none;
+    }
 }
 
 .logo {
-	width: 100%;
-	max-width: 400px;
-	vertical-align: top;
+    width: 600px;  // Thay đổi từ width: 100%
+    height: 600px;  // Thêm height cố định để kiểm soát kích thước
+   margin-left: 50px;
+    vertical-align: top;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    object-fit: contain;  // Thêm để giữ tỷ lệ khung hình
+    
+    &:hover {
+        transform: scale(1.05);
+    }
 }
 
 .title2 {
-	position: relative;
-	top: 2px;
-	color: var(--primary-color);
-	font-weight: 600;
-	font-size: 30px;
-	font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    position: relative;
+    top: 2px;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 30px;
+    font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
 
 .title3 {
-	position: relative;
-	top: 2px;
-	color: var(--primary-color);
-	font-weight: 600;
-	font-size: 30px;
-	font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    position: relative;
+    top: 2px;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 30px;
+    font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
 
 .title1 {
-	position: relative;
-	top: 2px;
-	color: @primary-color;
-	font-weight: 600;
-	font-size: 33px;
-	font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    position: relative;
+    top: 2px;
+    color: @primary-color;
+    font-weight: 600;
+    font-size: 33px;
+    font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
 
 .desc {
-	margin-top: 12px;
-	margin-bottom: 40px;
-	color: @text-color-secondary;
-	font-size: @font-size-base;
+    margin-top: 12px;
+    margin-bottom: 40px;
+    color: @text-color-secondary;
+    font-size: @font-size-base;
 }
 
 .main {
-	position: relative;
-	z-index: 99;
-	width: 440px;
-	margin: 0 auto;
-	margin-top: 32px;
-	padding: 24px;
-	background: #fff;
-	border-radius: 4px;
+    position: relative;
+    z-index: 99;
+    width: 550px;
+    margin: 0 auto;
+    padding: 60px 35px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(0);
 
-	box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+    &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 16px 48px 0 rgba(31, 38, 135, 0.45);
+    }
 
-	// &::before {
-	// 	position: absolute;
-	// 	top: -65px;
-	// 	left: -424px;
-	// 	z-index: -1;
-	// 	width: 600px;
-	// 	height: 300px;
-	// 	background-image: url('/frame1.svg');
-	// 	background-size: 100%;
-	// 	content: '';
-	// }
+    :global {
+        .@{ant-prefix}-tabs-nav-list {
+            margin: auto;
+            font-size: 16px;
+        }
 
-	// &::after {
-	// 	position: absolute;
-	// 	top: -56px;
-	// 	right: -443px;
-	// 	z-index: -1;
-	// 	width: 600px;
-	// 	height: 300px;
-	// 	background-image: url('/frame2.svg');
-	// 	background-repeat: no-repeat;
-	// 	background-size: 100%;
-	// 	content: '';
-	// }
+        .@{ant-prefix}-form-item-label > label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
 
-	// @media screen and (max-width: @screen-sm) {
-	// 	max-width: 100%;
-	// 	&::before {
-	// 		display: none;
-	// 	}
-	// 	&::after {
-	// 		top: 300px;
-	// 		right: -66px;
-	// 	}
-	// }
+        .@{ant-prefix}-input {
+            border-radius: 16px;
+            border: 2px solid #e1e5e9;
+            padding: 15px 20px;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            background: rgba(255, 255, 255, 0.8);
 
-	:global {
-		.@{ant-prefix}-tabs-nav-list {
-			margin: auto;
-			font-size: 16px;
-		}
-	}
+            &:hover {
+                border-color: #667eea;
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+                transform: translateY(-2px);
+                background: rgba(255, 255, 255, 1);
+            }
 
-	.icon {
-		margin-left: 16px;
-		color: rgba(0, 0, 0, 0.2);
-		font-size: 24px;
-		vertical-align: middle;
-		cursor: pointer;
-		transition: color 0.3s;
+            &:focus,
+            &.@{ant-prefix}-input-focused {
+                border-color: #667eea;
+                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 4px 20px rgba(102, 126, 234, 0.15);
+                transform: translateY(-2px);
+                background: rgba(255, 255, 255, 1);
+            }
+        }
 
-		&:hover {
-			color: var(--primary-color);
-		}
-	}
+        .@{ant-prefix}-input-password {
+            border-radius: 16px;
+            border: 2px solid #e1e5e9;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            background: rgba(255, 255, 255, 0.8);
 
-	.other {
-		margin-top: 24px;
-		line-height: 22px;
-		text-align: left;
-		.register {
-			float: right;
-		}
-	}
+            &:hover {
+                border-color: #667eea;
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+                transform: translateY(-2px);
+                background: rgba(255, 255, 255, 1);
+            }
 
-	.prefixIcon {
-		margin-right: 6px;
-		color: var(--primary-color);
-		font-size: @font-size-base;
-	}
+            &.@{ant-prefix}-input-affix-wrapper-focused {
+                border-color: #667eea;
+                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 4px 20px rgba(102, 126, 234, 0.15);
+                transform: translateY(-2px);
+                background: rgba(255, 255, 255, 1);
+            }
+        }
+
+        .@{ant-prefix}-btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 16px;
+            height: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+                background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            }
+
+            &:active {
+                transform: translateY(0px);
+            }
+        }
+
+        .@{ant-prefix}-btn-link {
+            color: #667eea;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 8px 12px;
+
+            &:hover {
+                color: #5a67d8;
+                background: rgba(102, 126, 234, 0.1);
+                transform: translateY(-1px);
+            }
+        }
+
+        .@{ant-prefix}-form-item {
+            margin-bottom: 24px;
+        }
+    }
+
+    .icon {
+        margin-left: 16px;
+        color: rgba(0, 0, 0, 0.2);
+        font-size: 24px;
+        vertical-align: middle;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 50%;
+        padding: 8px;
+
+        &:hover {
+            color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.1);
+        }
+    }
+
+    .other {
+        margin-top: 24px;
+        line-height: 22px;
+        text-align: left;
+        .register {
+            float: right;
+        }
+    }
+
+    .prefixIcon {
+        margin-right: 8px;
+        color: #667eea;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
 }
 
 @media screen and (max-width: @screen-xl) {
-	.title2 {
-		font-size: 25px;
-	}
+    .title2 {
+        font-size: 25px;
+    }
 }
 
 @media screen and (max-width: @screen-lg) {
-	.title2 {
-		font-size: 20px;
-	}
+    .title2 {
+        font-size: 20px;
+    }
 }
 
 @media screen and (max-width: 899px) {
-	.title1 {
-		font-size: 22px;
-	}
-	.title2 {
-		font-size: 18px;
-		line-height: 30px;
-	}
-	.title3 {
-		font-size: 22px;
-	}
+    .title1 {
+        font-size: 22px;
+    }
+    .title2 {
+        font-size: 18px;
+        line-height: 30px;
+    }
+    .title3 {
+        font-size: 22px;
+    }
+    
+    .main {
+        width: 90%;
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 30px 25px;
+    }
 }
 
 @media screen and (max-width: 695px) {
-	.header {
-		margin-bottom: 30px;
-	}
+    .header {
+        margin-bottom: 20px;
+    }
+    
+    .main {
+        padding: 25px 20px;
+    }
 }
 
 @media screen and (max-width: 377px) {
-	.header {
-		margin-bottom: 80px;
-	}
+    .header {
+        margin-bottom: 15px;
+    }
+    
+    .main {
+        padding: 20px 15px;
+    }
+	
+}
+// ...existing code...
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+// Add these styles to your existing auth styles file
+
+.auth-info-card {
+  background: linear-gradient(135deg, #f6ffed 0%, #f0f9ff 100%);
+  border: 1px solid #b7eb8f;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  
+  .info-card-title {
+    margin-bottom: 12px;
+    color: #262626;
+    display: flex;
+    align-items: center;
+  }
+  
+  .security-tips {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    
+    li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #595959;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .tip-icon {
+        color: #52c41a;
+        margin-right: 8px;
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+// Enhanced form validation styles
+.form-item {
+  .ant-form-item-explain-error {
+    font-size: 12px;
+    margin-top: 4px;
+    color: #ff4d4f;
+    display: flex;
+    align-items: center;
+    
+    &::before {
+      content: '⚠️';
+      margin-right: 4px;
+    }
+  }
+  
+  .ant-form-item-explain-success {
+    font-size: 12px;
+    margin-top: 4px;
+    color: #52c41a;
+    display: flex;
+    align-items: center;
+    
+    &::before {
+      content: '✓';
+      margin-right: 4px;
+    }
+  }
+}
+
+// Password strength indicator
+.password-strength {
+  margin-top: 8px;
+  
+  .strength-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: #f0f0f0;
+    overflow: hidden;
+    
+    .strength-fill {
+      height: 100%;
+      transition: all 0.3s ease;
+      
+      &.weak {
+        width: 33%;
+        background: #ff4d4f;
+      }
+      
+      &.medium {
+        width: 66%;
+        background: #faad14;
+      }
+      
+      &.strong {
+        width: 100%;
+        background: #52c41a;
+      }
+    }
+  }
+  
+  .strength-text {
+    font-size: 12px;
+    margin-top: 4px;
+    
+    &.weak { color: #ff4d4f; }
+    &.medium { color: #faad14; }
+    &.strong { color: #52c41a; }
+  }
+}
+
+.back-button {
+  color: #8c8c8c;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    color: #1890ff;
+    background: #f0f9ff;
+  }
+}
+
+// Loading state enhancements
+.auth-submit-button {
+  position: relative;
+  overflow: hidden;
+  
+  &.ant-btn-loading {
+    .ant-btn-loading-icon {
+      color: #fff;
+    }
+  }
+  
+  &:not(.ant-btn-loading) {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .auth-info-card {
+    padding: 16px;
+    margin-bottom: 20px;
+    
+    .security-tips li {
+      font-size: 13px;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-info-card {
+    padding: 12px;
+    
+    .info-card-title {
+      font-size: 14px;
+    }
+    
+    .security-tips li {
+      font-size: 12px;
+    }
+  }
+}
+
+// Error state styling
+.error-state {
+  text-align: center;
+  padding: 40px 20px;
+  
+  .error-icon {
+    font-size: 48px;
+    color: #ff4d4f;
+    margin-bottom: 16px;
+  }
+  
+  .error-title {
+    color: #262626;
+    margin-bottom: 8px;
+  }
+  
+  .error-description {
+    color: #8c8c8c;
+    margin-bottom: 24px;
+  }
+}
+
+// Success animation
+@keyframes successPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.success-state {
+  .auth-submit-button {
+    animation: successPulse 0.6s ease-in-out;
+  }
 }

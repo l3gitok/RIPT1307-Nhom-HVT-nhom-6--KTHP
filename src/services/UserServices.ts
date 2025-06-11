@@ -1,3 +1,7 @@
+import axios from 'axios';
+
+const API_BASE_URL = 'https://gamehubapi-test.onrender.com/api';
+
 // ===== EXISTING INTERFACES (giữ nguyên) =====
 export interface Profile {
     username: string;
@@ -159,3 +163,137 @@ export interface CloudinaryDeleteResponse {
   success: boolean;
   message: string;
 }
+
+// =====================================================
+// API CALLS
+// =====================================================
+
+// ✅ Enhanced toggle follow - return clean result without showing messages
+export const toggleFollow = async (targetUserId: string) => {
+  try {
+    const token = localStorage.getItem('accessToken');
+    
+    if (!token) {
+      throw new Error('Vui lòng đăng nhập để thực hiện thao tác này');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/follow/${targetUserId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (response.data.success) {
+      return {
+        success: true,
+        isFollowing: response.data.isFollowing,
+        message: response.data.message
+      };
+    } else {
+      throw new Error(response.data.message || 'Không thể thực hiện thao tác');
+    }
+    
+  } catch (error: any) {
+    console.error('Toggle follow error:', error);
+    
+    if (error.response) {
+      throw new Error(error.response.data?.message || 'Lỗi từ server');
+    } else if (error.request) {
+      throw new Error('Không thể kết nối đến server');
+    } else {
+      throw new Error(error.message || 'Có lỗi xảy ra');
+    }
+  }
+};
+
+// ✅ Send follow notification silently
+export const sendFollowNotification = async (targetUserId: string, followerUserId: string) => {
+  try {
+    const token = localStorage.getItem('accessToken');
+    
+    if (!token) {
+      throw new Error('Unauthorized');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/notifications/follow`,
+      {
+        targetUserId,
+        followerUserId,
+        type: 'follow',
+        message: 'đã bắt đầu theo dõi bạn'
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return response.data;
+    
+  } catch (error: any) {
+    console.error('Send follow notification error:', error);
+    // Don't throw error to prevent disrupting the follow flow
+    return { success: false };
+  }
+};
+
+// ✅ Check follow status
+export const checkFollowStatus = async (targetUserId: string) => {
+  try {
+    const token = localStorage.getItem('accessToken');
+    
+    if (!token) {
+      return { success: false, isFollowing: false };
+    }
+
+    const response = await axios.get(
+      `${API_BASE_URL}/auth/follow-status/${targetUserId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    return {
+      success: true,
+      isFollowing: response.data.isFollowing || false
+    };
+    
+  } catch (error: any) {
+    console.error('Check follow status error:', error);
+    return { success: false, isFollowing: false };
+  }
+};
+
+// ✅ Get follow counts
+export const getFollowCounts = async (userId: string) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/auth/follow-counts/${userId}`);
+    
+    return {
+      success: true,
+      data: {
+        followers: response.data.followers || 0,
+        following: response.data.following || 0
+      }
+    };
+    
+  } catch (error: any) {
+    console.error('Get follow counts error:', error);
+    return {
+      success: false,
+      data: { followers: 0, following: 0 }
+    };
+  }
+};
+
+// ... other existing functions ...

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Form, Input, Button, message, Card } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import { useLocation, history } from 'umi';

@@ -1,13 +1,12 @@
 // Main container
 .user-profile {
+  background: #f5f5f5;
   min-height: 100vh;
-  background: #fafafa;
-  padding: 24px 0;
+  padding: 20px;
 
   &__container {
-    max-width: 1000px;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 0 24px;
   }
 }
 
@@ -41,77 +40,29 @@
 
 // Profile header card
 .profile-header {
-  margin-bottom: 24px;
-  border-radius: 16px;
-  border: none;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  border-radius: 12px;
   overflow: hidden;
+}
 
-  .ant-card-body {
-    padding: 0;
-  }
+.profile-cover {
+  height: 200px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+}
 
-  &__cover {
-    height: 200px;
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    padding: 24px;
+.profile-avatar {
+  border: 4px solid white;
+  margin-bottom: -50px;
+}
 
-    &--default {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    &--custom {
-      background-size: cover;
-      background-position: center;
-    }
-  }
-
-  &__avatar {
-    border: 4px solid white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  &__info {
-    padding: 24px;
-  }
-
-  &__name-section {
-    margin-bottom: 20px;
-
-    .ant-typography {
-      margin-bottom: 0;
-      color: #262626;
-    }
-  }
-
-  &__name-row {
-    margin-bottom: 8px;
-  }
-
-  &__meta-info {
-    margin-bottom: 12px;
-
-    .ant-typography {
-      font-size: 14px;
-    }
-  }
-
-  &__verified-icon {
-    color: #1890ff;
-    font-size: 18px;
-  }
-
-  &__role-tag {
-    border-radius: 12px;
-    font-size: 12px;
-  }
-
-  &__banned-tag {
-    border-radius: 12px;
-    font-size: 12px;
-  }
+.profile-info {
+  padding: 60px 24px 24px;
 }
 
 // Stats section
@@ -252,52 +203,50 @@
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 12px;
-
-    .review-item__game-title {
-      margin-bottom: 8px;
-      color: #262626;
-      font-weight: 600;
-    }
-
-    .review-item__rating {
-      font-size: 16px;
-
-      .ant-rate-star {
-        margin-right: 2px;
-      }
-    }
   }
 
-  &__badge {
-    flex-shrink: 0;
+  &__game-title {
+    margin-bottom: 4px !important;
+    font-size: 16px;
+  }
 
-    &--excellent .ant-badge-count {
-      background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
-    }
-
-    &--good .ant-badge-count {
-      background: linear-gradient(135deg, #faad14 0%, #fa8c16 100%);
-    }
-
-    &--poor .ant-badge-count {
-      background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
-    }
+  &__rating {
+    font-size: 14px;
   }
 
   &__meta {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+  }
+
+  &__badge {
+    &--excellent {
+      .ant-badge-count {
+        background-color: #52c41a;
+      }
+    }
+
+    &--good {
+      .ant-badge-count {
+        background-color: #faad14;
+      }
+    }
+
+    &--poor {
+      .ant-badge-count {
+        background-color: #ff4d4f;
+      }
+    }
+  }
+
+  &__images {
+    margin: 12px 0;
+  }
+
+  &__footer {
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid #f0f0f0;
-  }
-
-  &__helpful {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
   }
 }
 
@@ -410,121 +359,19 @@
 // Responsive design
 @media (max-width: 768px) {
   .user-profile {
-    padding: 16px 0;
-
+    padding: 10px;
+    
     &__container {
-      padding: 0 16px;
+      max-width: 100%;
     }
   }
-
-  .profile-header {
-    margin-bottom: 16px;
-
-    &__cover {
-      height: 150px;
-      padding: 16px;
-    }
-
-    &__info {
-      padding: 16px;
-    }
-
-    &__name-section {
-      margin-bottom: 16px;
-    }
+  
+  .profile-info {
+    padding: 40px 16px 16px;
   }
-
-  .profile-stats {
-    &__item {
-      padding: 4px;
-    }
-
-    &__number {
-      font-size: 16px;
-    }
-
-    &__label {
-      font-size: 12px;
-    }
-  }
-
-  .profile-actions {
-    &__button {
-      min-width: 100px;
-      height: 36px;
-      font-size: 14px;
-    }
-  }
-
-  .profile-content {
-    .ant-card-body {
-      padding: 16px 16px 0;
-    }
-
-    &__tab-content {
-      padding: 0 4px;
-    }
-
-    &__header {
-      margin-bottom: 0;
-
-      .profile-content__title {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-        color: #262626;
-
-        .content-badge {
-          .ant-badge-count {
-            background: linear-gradient(135deg, #faad14 0%, #fa8c16 100%);
-            color: #fff;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
-          }
-        }
-      }
-
-      .profile-content__subtitle {
-        font-size: 14px;
-        line-height: 1.4;
-      }
-    }
-  }
-
-  .content-item {
-    &__card {
-      .ant-card-body {
-        padding: 16px;
-      }
-    }
-  }
-
-  .user-item {
-    &__container {
-      gap: 12px;
-    }
-
-    &__profile {
-      gap: 8px;
-    }
-
-    &__follow-button {
-      min-width: 70px;
-      font-size: 11px;
-    }
-  }
-
-  .followers-modal,
-  .following-modal {
-    .ant-modal {
-      top: 20px;
-      margin: 0 16px;
-      max-width: calc(100vw - 32px);
-    }
-
-    &__list {
-      max-height: 60vh;
-    }
+  
+  .post-card {
+    margin: 0 -8px;
   }
 }
 

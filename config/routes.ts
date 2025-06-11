@@ -1,15 +1,49 @@
 ﻿import component from '@/locales/en-US/component';
 import path from 'path';
 export default [
+	// ✅ Trang chính - Trang giới thiệu
+    {
+        path: '/',
+        component: './TrangGioiThieu',
+        layout: false, // Không sử dụng layout admin cho trang công khai
+        exact: true,
+    },
+	{
+		path: '/home',
+		component: './TrangChu',
+		layout: false, // Không sử dụng layout admin cho trang công khai
+		exact: true,
+	},
+	{
+		path: '/dang-theo-doi',
+		component: './DangTheoDoi',
+		layout: false, // Không sử dụng layout admin cho trang công khai
+		exact: true,
+	},
+	{
+		path: '/bang-xep-hang',
+		component: './BangXepHang',
+		layout: false, // Không sử dụng layout admin cho trang công khai
+		exact: true,
+	},
+	{
+      path: '/profile/:userId',
+      component: '@/pages/UserProfile/index',
+      layout: false, // Không sử dụng layout admin cho trang công khai
+	  exact: true,
+    },
+
 	{
 		path: '/user',
 		layout: false,
 		routes: [
 			{
+				path: '/',
+				redirect: '/user/login', 
+			},
+			{
 				path: '/user/login',
-				layout: false,
-				name: 'login',
-				component: './user/Login',
+				component: './user/Login/Login',
 			},
 			{
 				path: '/user/register',
@@ -45,15 +79,10 @@ export default [
 	{
 		path: 'admin/dashboard',
 		name: 'Dashboard',
-		component: './TrangChu',
+		component: './AdminDashBoard',
 		icon: 'HomeOutlined',
 	},
-	{
-		path: 'admin/random-user',
-		name: 'RandomUser',
-		component: './RandomUser',
-		icon: 'ArrowsAltOutlined',
-	},
+
 	{
 		path: 'admin/quan_ly_user',
 		name: 'User Management',
@@ -79,13 +108,7 @@ export default [
 		icon: 'WarningOutlined',
 	},
 	 // Thêm route cho public user profile (không cần layout admin)
-    {
-        path: '/profile/:userId',
-        name: 'user-profile',
-        component: './UserProfile',
-        layout: false,
-    },
-
+    
 	{
 		path: '/notification',
 		routes: [
@@ -108,9 +131,7 @@ export default [
 		layout: false,
 		hideInMenu: true,
 	},
-	{
-		path: '/',
-	},
+	
 	{
 		path: '/403',
 		component: './exception/403/403Page',

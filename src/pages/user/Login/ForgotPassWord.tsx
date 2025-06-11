@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, message, Card } from 'antd';
+import { Form, Input, Button, message } from 'antd';
 import { MailOutlined } from '@ant-design/icons';
 import { history } from 'umi';
 import styles from '../Login/index.less';
@@ -31,29 +31,55 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className={styles.main}>
-            <Card title="Quên mật khẩu" bordered={false}>
-                <Form form={form} onFinish={handleSubmit} layout="vertical">
-                    <Form.Item
-                        name="email"
-                        rules={[
-                            { required: true, message: 'Vui lòng nhập email!' },
-                            { type: 'email', message: 'Email không hợp lệ!' },
-                        ]}
+        <div className={styles.container}>
+            <div className={styles.content}>
+                <div className={styles.top}>
+                    <div className={styles.header}>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <img src='/logo2.png' alt='logo' className={styles.logo} />
+                            <span className={styles.title}>GAME HUB</span>
+                        </div>
+        
+                    </div>
+                </div>
+
+                <div className={styles.main}>
+                    <h2 >Quên mật khẩu</h2>
+                    <Form 
+                        form={form} 
+                        onFinish={handleSubmit} 
+                        layout="vertical"
+                        initialValues={{
+                            email: '',
+                        }}
                     >
-                        <Input
-                            prefix={<MailOutlined className={styles.prefixIcon} />}
-                            placeholder="Nhập email của bạn"
-                            size="large"
-                        />
-                    </Form.Item>
-                    <Form.Item>
+                        <Form.Item
+                            label="Email"
+                            name="email"
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập email!' },
+                                { type: 'email', message: 'Email không hợp lệ!' },
+                            ]}
+                        >
+                            <Input
+                                prefix={<MailOutlined className={styles.prefixIcon} />}
+                                placeholder="Nhập email của bạn"
+                                size="large"
+                            />
+                        </Form.Item>
+
                         <Button type="primary" htmlType="submit" block size="large" loading={submitting}>
                             Gửi yêu cầu
                         </Button>
-                    </Form.Item>
-                </Form>
-            </Card>
+                    </Form>
+
+                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                        <Button type='link' onClick={() => history.push('/user/login')}>
+                            Quay lại đăng nhập
+                        </Button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
