@@ -1,0 +1,187 @@
+.game-manager {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: 100vh;
+
+  .header-card {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    .page-title {
+      margin: 0;
+      color: #1890ff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  .controls-card {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    .add-btn {
+      border-radius: 8px;
+      height: 40px;
+      font-weight: 500;
+    }
+
+    .search-input {
+      border-radius: 30px;
+      
+      .ant-input {
+        border-radius: 8px;
+      }
+    }
+  }
+
+  .table-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    .games-table {
+      .ant-table-thead > tr > th {
+        background: #fafafa;
+        font-weight: 600;
+        color: #333;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .ant-table-tbody > tr {
+        &:hover > td {
+          background: #f8f9ff;
+        }
+      }
+
+      // Game info styles
+      .game-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .game-avatar {
+          border-radius: 8px;
+          border: 2px solid #f0f0f0;
+        }
+
+        .game-details {
+          flex: 1;
+
+          .game-title {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 4px;
+          }
+
+          .game-meta {
+            .game-date {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+
+      // Tags styles
+      .genres-container, .platforms-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+
+        .genre-tag, .platform-tag {
+          border-radius: 4px;
+          font-size: 12px;
+        }
+      }
+
+      // Rating styles
+      .rating-container {
+        .rating-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-bottom: 4px;
+        }
+
+        .metacritic-item {
+          font-size: 12px;
+        }
+      }
+
+      // Action buttons
+      .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.view-btn:hover {
+          background: #e6f7ff;
+          color: #1890ff;
+        }
+
+        &.edit-btn:hover {
+          background: #f6ffed;
+          color: #52c41a;
+        }
+
+        &.delete-btn:hover {
+          background: #fff2f0;
+          color: #ff4d4f;
+        }
+      }
+    }
+  }
+
+  // Modal styles
+  .game-form-modal {
+    .modal-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .ant-form-item-label > label {
+      font-weight: 500;
+    }
+
+    .ant-input, .ant-input-number {
+      border-radius: 6px;
+    }
+
+    .ant-input:focus, .ant-input-number:focus {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .game-manager {
+    padding: 16px;
+
+    .controls-card .ant-row {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .games-table {
+      .game-info {
+        .game-avatar {
+          width: 40px !important;
+          height: 40px !important;
+        }
+
+        .game-title {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}

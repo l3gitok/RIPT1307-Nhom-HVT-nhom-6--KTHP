@@ -173,7 +173,7 @@ const UserManager = () => {
 						placeholder='Tìm theo Username'
 						value={searchUsername}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchUsername(e.target.value)}
-						style={{ width: 200 }}
+						style={{ width: 200, borderRadius: 20 }}
 					/>
 				</Col>
 				<Col>
