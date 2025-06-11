@@ -488,51 +488,83 @@ const TrangChu = (): JSX.Element => {
             return;
         }
 
-        // ✅ Check if still uploading images
+        if (postContent.trim().length < 50) {
+            message.warning('Nội dung review cần ít nhất 50 ký tự');
+            return;
+        }
+
         if (uploadLoading) {
             message.warning('Vui lòng đợi upload ảnh hoàn tất');
             return;
         }
 
+        // ✅ Validate game selection - must be existing game
+        if (!values.game_id) {
+            message.error('Vui lòng chọn game từ danh sách');
+            return;
+        }
+
+        // ✅ Check if selected game exists in database
+        const selectedGame = games.find(game => game._id === values.game_id);
+        if (!selectedGame) {
+            message.error('Game không hợp lệ. Vui lòng chọn game từ danh sách có sẵn');
+            form.setFieldsValue({ game_id: undefined });
+            return;
+        }
+
+        // ✅ Validate rating
+        if (!values.rating || values.rating < 1 || values.rating > 5) {
+            message.error('Vui lòng đánh giá từ 1 đến 5 sao');
+            return;
+        }
+
         setSubmittingPost(true);
         try {
-            let gameData = values.game_id;
-            let isNewGame = false;
-            
-            const existingGame = games.find(game => game._id === values.game_id);
-            
-            if (!existingGame && values.game_id && typeof values.game_id === 'string') {
-                isNewGame = true;
-                gameData = values.game_id;
-            }
-
+            // ✅ Create clean review data - only existing games
             const reviewData = {
-                game_id: gameData,
-                game_title: isNewGame ? values.game_id : undefined,
-                content: postContent.replace(/<[^>]*>/g, ''),
-                rating: values.rating,
-                images: postImages,
-                is_new_game: isNewGame
+                game_id: selectedGame._id, // ✅ Use the actual game ID
+                content: postContent.trim(),
+                rating: Number(values.rating), // ✅ Ensure number type
+                images: postImages.filter(img => img && img.trim()) // ✅ Filter valid images
             };
 
-            await createReview(reviewData);
+            console.log('✅ Submitting review data:', reviewData);
+            console.log('✅ Selected game:', selectedGame);
+            console.log('✅ Form values:', values);
 
-            if (isNewGame) {
-                message.success('Bài review game mới đã được gửi và đang chờ admin duyệt!');
-            } else {
-                message.success('Bài review đã được gửi và đang chờ duyệt!');
-            }
+            const result = await createReview(reviewData);
+            console.log('✅ Review created successfully:', result);
+
+            message.success(`Bài review game "${selectedGame.title}" đã được gửi và đang chờ duyệt!`);
             
+            // Reset form
             setPostModalOpen(false);
             form.resetFields();
             setPostContent('');
             setPostImages([]);
             
+            // Reload reviews
             loadReviews();
             
         } catch (error: any) {
-            console.error('Error creating review:', error);
-            message.error(error.message || 'Không thể đăng bài viết');
+            console.error('❌ Error creating review:', error);
+            
+            // ✅ Better error handling
+            if (error.response) {
+                console.error('❌ Response status:', error.response.status);
+                console.error('❌ Response data:', error.response.data);
+                
+                const errorData = error.response.data;
+                if (errorData.errors && Array.isArray(errorData.errors)) {
+                    // Validation errors from backend
+                    const errorMessages = errorData.errors.map((err: any) => err.msg || err.message).join(', ');
+                    message.error(`Lỗi validation: ${errorMessages}`);
+                } else {
+                    message.error(error.message || errorData.message || 'Không thể đăng bài viết');
+                }
+            } else {
+                message.error(error.message || 'Không thể đăng bài viết');
+            }
         } finally {
             setSubmittingPost(false);
         }
