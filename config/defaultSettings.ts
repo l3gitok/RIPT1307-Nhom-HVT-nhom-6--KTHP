@@ -12,7 +12,7 @@ const Settings: LayoutSettings & {
   }
 } = {
   // === Thông tin ứng dụng ===
-  title: '',
+  title: 'GameHub',
   logo: '/sad.png',
 
   // === Cấu hình header ===
