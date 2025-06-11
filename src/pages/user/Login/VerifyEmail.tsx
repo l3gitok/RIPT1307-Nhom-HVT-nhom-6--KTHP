@@ -76,7 +76,7 @@ const VerifyEmail = () => {
                 <div className={styles.top}>
                     <div className={styles.header}>
                         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            <img src='/logo2.png' alt='logo' className={styles.logo} />
+                            <img src='/sad.png' alt='logo' className={styles.logo} />
                             <span className={styles.title}>GAME HUB</span>
                         </div>
                         <div style={{ textAlign: 'center', marginTop: '20px' }}>
