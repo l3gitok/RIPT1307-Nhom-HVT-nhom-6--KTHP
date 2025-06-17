@@ -42,18 +42,14 @@ const DangTheoDoi = (): JSX.Element => {
 							<HeartOutlined style={{ marginRight: '12px', color: '#ff4d4f' }} />
 							Đang theo dõi
 						</Title>
-						<Text type="secondary" style={{ fontSize: '16px' }}>
+						<Text type='secondary' style={{ fontSize: '16px' }}>
 							Những bài viết mới nhất từ người bạn theo dõi
 						</Text>
 
 						{/* ✅ Action buttons */}
 						<div style={{ marginTop: '16px' }}>
 							<Space>
-								<Button
-									type="primary"
-									icon={<PlusOutlined />}
-									onClick={() => history.push('/home')}
-								>
+								<Button type='primary' icon={<PlusOutlined />} onClick={() => history.push('/home')}>
 									Tạo bài viết mới
 								</Button>
 								<Button onClick={() => history.push('/discover')}>Khám phá người dùng</Button>
